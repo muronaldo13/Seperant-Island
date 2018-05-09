@@ -58,8 +58,8 @@ public class Hero extends Creatures {
     }
 
     public String getStats() {
-        return "Name: " + name + "\nHP: " + currentHP +"/" + maxHP + "\nATK Point: " + currentDamage
+        return "Name: " + name + "\nElement: " + element.name() + "\nHP: " + currentHP +"/" + maxHP + "\nATK Point: " + currentDamage
                 + "\nDEF Point: " + currentDef + "\nSkill: " + skill.getName()
-                + "\nCD: " + skill.getCurrentCooldown() + "\n" + skill.getDescription();
+                + "\nRemaining CoolDown: " + skill.getCurrentCooldown() + "\n" + skill.getDescription();
     }
 }
