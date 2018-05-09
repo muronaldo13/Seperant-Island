@@ -28,7 +28,7 @@ public abstract class Cards {
         Random rd = new Random();
         int value = rd.nextInt(101);
         if(value < 5){
-            return new UltimateCard("cardArts/ultimatecard.png");
+            return new UltimateCard("cardArts/execution.png");
         }
         else if (value >= 5 && value < 10){
             return generateRandomDamageCard();
