@@ -79,10 +79,10 @@ public class Monster extends Creatures{
     }
 
     public String getStats() {
-        String stats = "Name: " + name + "\nHP: " + currentHP +"/" + maxHP + "\nATK Point: " + currentDamage
+        String stats = "Name: " + name + "\nElement: "+ element.name() +"\nHP: " + currentHP +"/" + maxHP + "\nATK Point: " + currentDamage
                 + "\nDEF Point: " + currentDef;
         for (Skill skill : skillList) {
-            stats += "\nSkill: " + skill.getName() + "\nCD: " + skill.getCurrentCooldown();
+            stats += "\nSkill: " + skill.getName() + "\nRemaining CoolDown: " + skill.getCurrentCooldown();
         }
         return stats;
     }

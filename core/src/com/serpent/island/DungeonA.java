@@ -134,45 +134,59 @@ public class DungeonA implements Screen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     final int clickedHeroIndex = heroIcons.indexOf(event.getListenerActor());
-                    Hero clickedHero = party.get(clickedHeroIndex);
-
-                    // Display skill activation dialog
-                    Dialog dialog = new Dialog("", guiSkin, "default") {
-                        public void result(Object obj) {
-                            // Activate skill
-                            if (obj.equals(true)) {
-                                party.get(clickedHeroIndex).activateSkill(DungeonA.this);
-                            }
-                        }
-                    };
-
-                    // Set up dialog title area
-                    Label titleLabel = new Label("Character Detail", guiSkin);
-                    titleLabel.setFontScale(1.3f);
-                    titleLabel.setSize(20,20);
-                    dialog.getTitleTable().add(titleLabel);
-                    // Set up dialog content area
-                    Label heroStatsLabel = new Label(clickedHero.getStats(), guiSkin);
-                    heroStatsLabel.setFontScale(1.2f);
-                    heroStatsLabel.setSize(350,250);
-                    heroStatsLabel.setWrap(true);
-                    // Skill activation button will only show when skill is activatable
-                    if (clickedHero.getSkill().getCurrentCooldown() == 0
-                            && clickedHero.getCurrentHP() > 0f) {
-                        dialog.button("Activate Skill", true);
-                    }
-                    dialog.button("Cancel", false);
-                    dialog.setSize(350, heroStatsLabel.getHeight());
-                    dialog.getContentTable().add(heroStatsLabel);
-                    dialog.getContentTable().align(Align.left);
-                    dialog.setPosition(Gdx.graphics.getWidth()/2-dialog.getWidth(), Gdx.graphics.getHeight()/2);
-                    dialog.setScale(2f);
-                    dungeonA_Battle.addActor(dialog);
+                    makeCharacterDialog(clickedHeroIndex);
                 }
             });
         }
     }
 
+    private void makeCharacterDialog(final int characterIndex){
+        // Display skill activation dialog
+        Dialog dialog;
+        if (characterIndex != -1) {
+            dialog = new Dialog("", guiSkin, "default") {
+                public void result(Object obj) {
+                    // Activate skill
+                    if (obj.equals(true)) {
+                        party.get(characterIndex).activateSkill(DungeonA.this);
+                    }
+                }
+            };
+        }
+        else{
+            dialog = new Dialog("", guiSkin, "default");
+        }
+        // Set up dialog title area
+        Label titleLabel = new Label("Character Detail", guiSkin);
+        titleLabel.setFontScale(1.3f);
+        titleLabel.setSize(25,25);
+        dialog.getTitleTable().add(titleLabel);
+        Label characterStatsLabel;
+        if(characterIndex != -1) {
+            // Set up dialog content area
+            characterStatsLabel = new Label(party.get(characterIndex).getStats(), guiSkin);
+            characterStatsLabel.setSize(350,250);
+            // Skill activation button will only show when skill is activatable
+            if (party.get(characterIndex).getSkill().getCurrentCooldown() == 0
+                    && party.get(characterIndex).getCurrentHP() > 0f) {
+                dialog.button("Activate Skill", true);
+            }
+        }
+        else {
+            characterStatsLabel = new Label(monsters.get(0).getStats(), guiSkin);
+            characterStatsLabel.setSize(350,270);
+        }
+
+        characterStatsLabel.setFontScale(1.2f);
+        characterStatsLabel.setWrap(true);
+        dialog.button("Cancel", false);
+        dialog.setSize(350, characterStatsLabel.getHeight());
+        dialog.getContentTable().add(characterStatsLabel);
+        dialog.getContentTable().align(Align.left);
+        dialog.setPosition(Gdx.graphics.getWidth()/2-dialog.getWidth(), Gdx.graphics.getHeight()/2);
+        dialog.setScale(2f);
+        dungeonA_Battle.addActor(dialog);
+    }
     /**
      * Build the enemies for this dungeon
      */
@@ -183,6 +197,12 @@ public class DungeonA implements Screen {
         monsters.add(tigerA);
         monsterIcons.add(new ImageButton(new TextureRegionDrawable(new TextureRegion(
                 new Texture(Gdx.files.internal("monsterImgs/tiger.png"))))));
+        monsterIcons.get(0).addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                makeCharacterDialog(-1);
+            }
+        });
     }
 
     /**
@@ -434,7 +454,8 @@ public class DungeonA implements Screen {
     public void decreaseHPBar(int indexValue, float damage, String type, String name){
         Label damageLabel = new Label("-" + damage +  (name == null? "":" (" + name +")"), guiSkin);
         damageLabel.setFontScale(4f);
-        damageLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f), Actions.fadeOut(0.5f), Actions.removeActor(damageLabel)));
+        damageLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f),
+                Actions.fadeOut(0.5f), Actions.removeActor(damageLabel)));
         damageLabel.setColor(Color.RED);
         // Update monster's hp bar
         if(type == "Monster"){
@@ -468,7 +489,8 @@ public class DungeonA implements Screen {
                     effectLabel.setFontScale(3f);
                     effectLabel.setColor(229f / 255, 226f / 255, 60f / 255, 1);
                     effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
-                    effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f), Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
+                    effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f),
+                            Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
                     dungeonA_Battle.addActor(effectLabel);
                 }
                 // Meaning the buff card activated was heal
@@ -622,7 +644,7 @@ public class DungeonA implements Screen {
 
         // Monster attacking phase
         for (Monster monster : monsters) {
-            if (!monster.isStun() || !IgnoreDmg) {
+            if (!monster.isStun() && !IgnoreDmg) {
                 int targetIndex;
 
                 if (monster.getTauntingSource() != null) {
