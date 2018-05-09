@@ -50,7 +50,7 @@ public class Monster extends Creatures{
                     Hero source = dungeon.party.get(dungeon.party.indexOf(tauntingSource));
                     if (skill.getName().equals(Skill.LEECH)) {
                         source.takeDamage(100f);
-                        dungeon.decreaseHPBar(dungeon.party.indexOf(source), 100f, "Hero");
+                        dungeon.decreaseHPBar(dungeon.party.indexOf(source), 100f, "Hero", null);
                         healAmount(100f);
                         dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
                     }
@@ -63,7 +63,7 @@ public class Monster extends Creatures{
                         if (!hero.isDead()) {
                             if (skill.getName().equals(Skill.LEECH)) {
                                 hero.takeDamage(100f);
-                                dungeon.decreaseHPBar(dungeon.party.indexOf(hero), 100f, "Hero");
+                                dungeon.decreaseHPBar(dungeon.party.indexOf(hero), 100f, "Hero",null);
                                 healAmount(100f);
                                 dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
                             }

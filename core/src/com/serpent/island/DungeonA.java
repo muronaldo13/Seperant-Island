@@ -431,8 +431,8 @@ public class DungeonA implements Screen {
      * @param damage the value of which the hp bar is decreasing by
      * @param type of damaged unit, Monster or Hero
      */
-    public void decreaseHPBar(int indexValue, float damage, String type){
-        Label damageLabel = new Label("-" + damage, guiSkin);
+    public void decreaseHPBar(int indexValue, float damage, String type, String name){
+        Label damageLabel = new Label("-" + damage +  (name == null? "":" (" + name +")"), guiSkin);
         damageLabel.setFontScale(4f);
         damageLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f), Actions.fadeOut(0.5f), Actions.removeActor(damageLabel)));
         damageLabel.setColor(Color.RED);
@@ -526,7 +526,7 @@ public class DungeonA implements Screen {
                 }
                 damageSound.play();
                 for (Monster monster : monsters) {
-                    decreaseHPBar(monsters.indexOf(monster), ((DamageCard) card).activate(monster), "Monster");
+                    decreaseHPBar(monsters.indexOf(monster), ((DamageCard) card).activate(monster), "Monster", ((DamageCard) card).getName());
                 }
                 if (!castedSpell) {
                     actDamageCardCount++;
@@ -592,7 +592,7 @@ public class DungeonA implements Screen {
                 // and the hero is not being hard cc
                 if (!hero.isStun()) {
                     float damage = monsters.get(0).calculateDamage(hero, "Attack");
-                    decreaseHPBar(0, damage, "Monster");
+                    decreaseHPBar(0, damage, "Monster", hero.getName());
                 }
             }
             // All monster dead, player win
@@ -649,13 +649,13 @@ public class DungeonA implements Screen {
                 if (targetIndex != -1) {
                     if (!ReflectDamage) {
                         // Monster attacks the selected target hero
-                        decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monster, "Attack"), "Hero");
+                        decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monster, "Attack"), "Hero", null);
                     }
                     // Monster attack got reflected
                     else {
                         float reflectDmg = party.get(targetIndex).calculateDamage(monster, "Reflect");
                         monster.takeDamage(reflectDmg);
-                        decreaseHPBar(monsters.indexOf(monster), reflectDmg, "Monster");
+                        decreaseHPBar(monsters.indexOf(monster), reflectDmg, "Monster", monster.getName());
                     }
 
                     // When all heros are dead, it's game over

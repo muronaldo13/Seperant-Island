@@ -16,6 +16,7 @@ public abstract class Creatures {
     protected float currentDamage;
     protected float currentDef;
     protected boolean stunned;
+    protected float critDamage;
 
     public Creatures(String name, float maxHP, float baseDamage, float baseDef, Element element){
         this.name = name;
@@ -27,6 +28,7 @@ public abstract class Creatures {
         this.currentDamage = baseDamage;
         this.currentDef = baseDef;
         stunned = false;
+        critDamage = 1.5f;
     }
 
     public String getName() {
@@ -120,7 +122,7 @@ public abstract class Creatures {
             Random rd  = new Random();
             int value = rd.nextInt(100);
             if(value < 25) {
-                damage *= 1.5;
+                damage *= critDamage;
             }
         }
         if (mode == "Attack") {
