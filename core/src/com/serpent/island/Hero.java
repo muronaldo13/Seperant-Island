@@ -2,8 +2,6 @@ package com.serpent.island;
 
 /**
  * Created by Nghia on 2018/4/23.
- * Edited by John on 2018/4/24
- *  - Added getStats & getSkillInfo functions
  */
 
 public class Hero extends Creatures {
@@ -18,22 +16,6 @@ public class Hero extends Creatures {
         taunt = false;
     }
 
-    public void increaseDamage(float damage){
-        this.currentDamage += damage;
-    }
-
-    public void increasePercentageDamage(int percentage){
-        this.currentDamage += (currentDamage * percentage / 100);
-    }
-
-    public void increaseDef(float defValue){
-        this.currentDef += defValue;
-    }
-
-    public void increasePercentageDef(int percentage){
-        this.currentDef += (currentDef * percentage / 100);
-    }
-
     public Skill getSkill() {
         return skill;
     }
@@ -46,28 +28,33 @@ public class Hero extends Creatures {
         this.invis = invis;
     }
 
-    public boolean isTaunt() {
-        return taunt;
-    }
-
-    public void setTaunt(boolean taunt) {
-        this.taunt = taunt;
-    }
-
     @Override
-    public void activateSkill(Creatures appliedBoss) {
+    public void activateSkill( DungeonA dungeon) {
         if (skill.getName().equals(Skill.SUMMONING)) {
-            DamageCard.generateRandomDamageCard().activate((Monster) appliedBoss);
+            dungeon.activateCard(DamageCard.generateRandomDamageCard(), true);
         }
         else if(skill.getName().equals(Skill.TAUNT)){
-            setTaunt(true);
+            this.increaseDef(50f);
+            for (Monster monster : dungeon.monsters) {
+                monster.setTauntingSource(this);
+            }
         }
         else if(skill.getName().equals(Skill.REVIVE)){
-            //TODO
+            for (Hero hero : dungeon.party) {
+                if (hero != this) {
+                    if (hero.isDead()) {
+                        float newHP = hero.getMaxHP()/3;
+                        hero.setCurrentHP(newHP);
+                        dungeon.increaseHPBar(dungeon.party.indexOf(hero), newHP, "Hero");
+                    }
+                }
+            }
         }
         else if(skill.getName().equals(Skill.INVIS)) {
-            setInvis(true);
+            this.setInvis(true);
         }
+
+        skill.resetCooldown();
     }
 
     public String getStats() {

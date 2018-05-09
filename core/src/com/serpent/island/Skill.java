@@ -5,12 +5,12 @@ package com.serpent.island;
  */
 
 public class Skill {
-    public static final String TAUNT = "TAUNTING";
-    public static final String SUMMONING = "SPELL_SUMMONING";
-    public static final String REVIVE = "REVIVE_HERO";
-    public static final String INVIS = "INVISIBLE";
-    public static final String LEECH = "LEECH";
-    public static final String Entangle = "ENTANGLE";
+    public static final String TAUNT = "Taunt";
+    public static final String SUMMONING = "Spell Summoning";
+    public static final String REVIVE = "Resurrection";
+    public static final String INVIS = "Invisible";
+    public static final String LEECH = "Leech";
+    public static final String ENTANGLE = "Entangle";
     private int totalCooldown;
     private int currentCooldown;
     private String name;
@@ -37,21 +37,13 @@ public class Skill {
         return name;
     }
 
-    public void setDescription (String description) {
-        this.description = description;
-    }
-
     public String getDescription() { return description; }
 
     public int getCurrentCooldown() {
         return currentCooldown;
     }
 
-    public void setCurrentCooldown(int currentCooldown) {
-        this.currentCooldown = currentCooldown;
-    }
-
-    public int getTotalCooldown() {
-        return totalCooldown;
+    public void resetCooldown() {
+        currentCooldown = totalCooldown;
     }
 }

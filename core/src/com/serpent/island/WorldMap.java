@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -49,28 +50,12 @@ public class WorldMap implements Screen {
         // Stage should control inputs
         Gdx.input.setInputProcessor(serpentIslandMain);
 
-        // Make the drawable for buttons
-        Drawable formationButton_D = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("buttonImgs/party.png"))));
+        // Make the drawable for button
         Drawable dungeonA_D = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("buttonImgs/secreatisland.png"))));
-
-        // Create the four function buttons
-        ImageButton formationButton = new ImageButton(formationButton_D);
-        ImageButton deckButton = new ImageButton(formationButton_D);
-        ImageButton collectionButton = new ImageButton(formationButton_D);
-        ImageButton settingsButton = new ImageButton(formationButton_D);
-
-        // Build the button table with the four buttons
-        Table buttonTable = new Table();
-        buttonTable.setWidth(Gdx.graphics.getWidth());
-        buttonTable.align(Align.center | Align.bottom);
-        buttonTable.add(formationButton).width(Gdx.graphics.getWidth()/4);
-        buttonTable.add(deckButton).width(Gdx.graphics.getWidth()/4);
-        buttonTable.add(collectionButton).width(Gdx.graphics.getWidth()/4);
-        buttonTable.add(settingsButton).width(Gdx.graphics.getWidth()/4);
 
         // Add the first dungeon's button to the stage
         ImageButton dungeonAButton = new ImageButton(dungeonA_D);
-        dungeonAButton.setPosition(buttonTable.getX() + 70, buttonTable.getY() + 200);
+        dungeonAButton.setPosition(20, Gdx.graphics.getHeight()/10);
 
         // Add listeners to buttons
         dungeonAButton.addListener(new ClickListener() {
@@ -83,7 +68,6 @@ public class WorldMap implements Screen {
         });
 
         // Add the ui elements to stage
-        serpentIslandMain.addActor(buttonTable);
         serpentIslandMain.addActor(dungeonAButton);
     }
 

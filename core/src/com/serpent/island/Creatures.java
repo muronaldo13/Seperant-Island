@@ -7,55 +7,95 @@ import java.util.Random;
  */
 
 public abstract class Creatures {
+    protected String name;
     protected float maxHP;
     protected float baseDamage;
     protected float baseDef;
+    protected Element element;
     protected float currentHP;
     protected float currentDamage;
     protected float currentDef;
-    protected Element element;
-    protected boolean stun;
-    protected String name;
-    protected boolean skillActivated;
+    protected boolean stunned;
 
     public Creatures(String name, float maxHP, float baseDamage, float baseDef, Element element){
         this.name = name;
         this.maxHP = maxHP;
-        this.currentHP = maxHP;
         this.baseDamage = baseDamage;
         this.baseDef = baseDef;
         this.element = element;
+        this.currentHP = maxHP;
         this.currentDamage = baseDamage;
         this.currentDef = baseDef;
-        stun = false;
+        stunned = false;
     }
 
-    /**
-     * Take damage value that is x% of creature's max HP
-     * @param percentage damage percentage margin
-     * @return damage taken
-     */
-    public float takePercentageDamage(float percentage){
-        float dmg = maxHP*percentage/100;
-        currentHP -= dmg;
-        if (currentHP < 0) {
-            currentHP = 0;
-        }
-        return dmg;
+    public String getName() {
+        return name;
     }
 
-    /**
-     * Take damage normally
-     * @param dmg damage dealt
-     * @return damage taken
-     */
-    public float takeDamage(float dmg){
-        dmg -= currentDef;
-        currentHP -= dmg;
-        if (currentHP < 0) {
-            currentHP = 0;
+    public float getMaxHP() {
+        return maxHP;
+    }
+
+    public float getBaseDamage() {
+        return baseDamage;
+    }
+
+    public float getBaseDef() {
+        return baseDef;
+    }
+
+    public Element getElement() {
+        return element;
+    }
+
+    public float getCurrentHP() {
+        return currentHP;
+    }
+
+    public void setCurrentHP(float currentHP) {
+        this.currentHP = currentHP;
+    }
+
+    public float getCurrentDamage() {
+        return currentDamage;
+    }
+
+    public void setCurrentDamage(float currentDamage) {
+        this.currentDamage = currentDamage;
+    }
+
+    public void increasePercentageDamage(int percentage){
+        this.currentDamage += (currentDamage * percentage / 100);
+    }
+
+    public float getCurrentDef() {
+        return currentDef;
+    }
+
+    public void setCurrentDef(float currentDef) {
+        this.currentDef = currentDef;
+    }
+
+    public void increaseDef(float defValue){
+        this.currentDef += defValue;
+    }
+
+    public void increasePercentageDef(int percentage){
+        this.currentDef += (currentDef * percentage / 100);
+    }
+
+    public boolean isStun() { return stunned; }
+
+    public void setStun(boolean stun) {
+        stunned = stun;
+    }
+
+    public boolean isDead() {
+        if (currentHP < 0f) {
+            return true;
         }
-        return dmg;
+        return false;
     }
 
     /**
@@ -91,6 +131,34 @@ public abstract class Creatures {
         }
     }
 
+    /**
+     * Take damage normally
+     * @param dmg damage dealt
+     * @return damage taken
+     */
+    public float takeDamage(float dmg){
+        dmg -= currentDef;
+        currentHP -= dmg;
+        if (currentHP < 0) {
+            currentHP = 0;
+        }
+        return dmg;
+    }
+
+    /**
+     * Take damage value that is x% of creature's max HP
+     * @param percentage damage percentage margin
+     * @return damage taken
+     */
+    public float takePercentageDamage(float percentage){
+        float dmg = maxHP*percentage/100;
+        currentHP -= dmg;
+        if (currentHP < 0) {
+            currentHP = 0;
+        }
+        return dmg;
+    }
+
     public void healAmount(float amount){
         if(currentHP + amount >= maxHP)
             currentHP = maxHP;
@@ -104,57 +172,15 @@ public abstract class Creatures {
         healAmount(amount);
     }
 
-    public Element getElement() {
-        return element;
-    }
+    public abstract void activateSkill(DungeonA dungeon);
 
-    public float getMaxHP() {
-        return maxHP;
-    }
-
-    public float getCurrentHP() {
-        return currentHP;
-    }
-
-    public void setCurrentHP(float currentHP) {
-        this.currentHP = currentHP;
-    }
-
-    public float getBaseDamage() {
-        return baseDamage;
-    }
-
-    public float getBaseDef() {
-        return baseDef;
-    }
-
-    public float getCurrentDamage() {
-        return currentDamage;
-    }
-
-    public void setCurrentDamage(float currentDamage) {
-        this.currentDamage = currentDamage;
-    }
-
-    public float getCurrentDef() {
-        return currentDef;
-    }
-
-    public void setCurrentDef(float currentDef) {
-        this.currentDef = currentDef;
-    }
-
-    public boolean isStun() {
-        return stun;
-    }
-
-    public void setStun(boolean stun) {
-        this.stun = stun;
-    }
-
-    public abstract void activateSkill(Creatures appliedBossOrHero);
-
-    public String getName() {
-        return name;
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Creatures)) {
+            return false;
+        }
+        else {
+            return ((Creatures) o).getName().equals(this.getName());
+        }
     }
 }

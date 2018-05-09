@@ -12,18 +12,16 @@ import java.util.Random;
  */
 
 public abstract class Cards {
-    public Drawable getCardImage() {
-        return cardImage;
-    }
-
-    public String getImgPath() {return  imgPath;}
-
     private String imgPath;
     private Drawable cardImage;
 
     public Cards(String imgPath){
         this.imgPath = imgPath;
         cardImage = new TextureRegionDrawable(new TextureRegion(new Texture(imgPath)));
+    }
+
+    public Drawable getCardImage() {
+        return cardImage;
     }
 
     public static Cards generateRandomCard(){
@@ -80,7 +78,7 @@ public abstract class Cards {
         int value = rd.nextInt(4);
         switch (value){
             case 0:
-                return new TrapCard(TrapCard.IgnoreDmg, "cardArts/reflectdmg.png");
+                return new TrapCard(TrapCard.IgnoreDmg, "cardArts/barrier.png");
             case 1:
                 return new TrapCard(TrapCard.Reflecting, "cardArts/reflectdmg.png");
             case 2:

@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -40,36 +41,52 @@ public class DungeonA implements Screen {
     private Sprite background;
     private Stage dungeonA_Battle;
     private Skin guiSkin;
-    private Skin guiSkin2;
-    private ArrayList<Hero> party = new ArrayList<Hero>();
-    private ArrayList<Button> heroIcons = new ArrayList<Button>();
-    private ArrayList<ProgressBar> heroHPBars = new ArrayList<ProgressBar>();
-    private ArrayList<Cards> handCard = new ArrayList<Cards>();
-    private ArrayList<Monster> monsters = new ArrayList<Monster>();
-    private ArrayList<ImageButton> monsterIcons = new ArrayList<ImageButton>();
-    private ArrayList<ProgressBar> monsterHPBars = new ArrayList<ProgressBar>();
+    protected ArrayList<Hero> party;
+    private ArrayList<Button> heroIcons;
+    private ArrayList<ProgressBar> heroHPBars;
+    private ArrayList<Cards> handCard;
+    protected ArrayList<Monster> monsters;
+    private ArrayList<ImageButton> monsterIcons;
+    private ArrayList<ProgressBar> monsterHPBars;
     private Table monsterTable;
     private Table heroTable;
     private Table cardTableA;
     private Table cardTableB;
-    private float damageLabelPadding = 0;
+    private float damageLabelPadding;
     private Music bgm;
+    private Music damageSound;
+    private int actBuffCardCount;
+    private int actTrapCardCount;
+    private int actDamageCardCount;
+    private int actUltimateCardCount;
     public static boolean ReflectDamage = false;
     public static boolean IgnoreDmg = false;
 
     public DungeonA(Game game) {
+        // variable initialisation
         this.game = game;
         batch = new SpriteBatch();
         background = new Sprite(new Texture(Gdx.files.internal("dungeonA.png")));
         background.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         guiSkin = new Skin(Gdx.files.internal("gui/uiskin.json"));
-        guiSkin2 = new Skin(Gdx.files.internal("gui/clean-crispy-ui.json"));
         dungeonA_Battle = new Stage(new ScreenViewport());
+        party = new ArrayList<Hero>();
+        heroIcons = new ArrayList<Button>();
+        heroHPBars = new ArrayList<ProgressBar>();
+        handCard = new ArrayList<Cards>();
+        monsters = new ArrayList<Monster>();
+        monsterIcons = new ArrayList<ImageButton>();
+        monsterHPBars = new ArrayList<ProgressBar>();
+        damageLabelPadding = 0;
+        actBuffCardCount = 0;
+        actDamageCardCount = 0;
+        actTrapCardCount = 0;
+        actUltimateCardCount = 0;
 
         // Set up bgm
         bgm = Gdx.audio.newMusic(Gdx.files.internal("bgm/battleBGM.ogg"));
         bgm.setLooping(true);
-        bgm.setVolume(0.5f);
+        bgm.setVolume(0.2f);
         bgm.play();
 
         // Set up the table for displaying cards
@@ -92,13 +109,13 @@ public class DungeonA implements Screen {
      */
     public void buildParty() {
         // Add hero to party
-        party.add(new Hero("Andrew.Assasin", 750f, 90f, 12f ,Element.AIR
+        party.add(new Hero("Andrew.Assasin", 620f, 90f, 12f ,Element.AIR
                 , new Skill(Skill.INVIS, "The unit cannot be targeted by monsters", 5)));
         party.add(new Hero("Hira.SpellCaster", 600f, 110f, 6f, Element.FIRE
                 , new Skill(Skill.SUMMONING, "Summon and play a damage card", 5)));
         party.add(new Hero("Jessica.Priest", 650f, 60f, 12f, Element.WATER
                 , new Skill(Skill.REVIVE,"Revive all dead heroes", 6)));
-        party.add(new Hero("Matt.Tank",900f, 70f, 30f, Element.EARTH
+        party.add(new Hero("Matt.Tank",750f, 70f, 30f, Element.EARTH
                 , new Skill(Skill.TAUNT, "Attract all damage to this hero while\ngaining 50 armor", 3)));
 
         // Make the image buttons to display the heros
@@ -116,14 +133,15 @@ public class DungeonA implements Screen {
             heroIcons.get(i).addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    int clickedHeroIndex = heroIcons.indexOf(event.getListenerActor());
+                    final int clickedHeroIndex = heroIcons.indexOf(event.getListenerActor());
                     Hero clickedHero = party.get(clickedHeroIndex);
+
                     // Display skill activation dialog
                     Dialog dialog = new Dialog("", guiSkin, "default") {
                         public void result(Object obj) {
                             // Activate skill
                             if (obj.equals(true)) {
-                                //Todo
+                                party.get(clickedHeroIndex).activateSkill(DungeonA.this);
                             }
                         }
                     };
@@ -133,15 +151,14 @@ public class DungeonA implements Screen {
                     titleLabel.setFontScale(1.3f);
                     titleLabel.setSize(20,20);
                     dialog.getTitleTable().add(titleLabel);
-
                     // Set up dialog content area
                     Label heroStatsLabel = new Label(clickedHero.getStats(), guiSkin);
                     heroStatsLabel.setFontScale(1.2f);
                     heroStatsLabel.setSize(350,250);
                     heroStatsLabel.setWrap(true);
-
                     // Skill activation button will only show when skill is activatable
-                    if (clickedHero.getSkill().getCurrentCooldown() == 0) {
+                    if (clickedHero.getSkill().getCurrentCooldown() == 0
+                            && clickedHero.getCurrentHP() > 0f) {
                         dialog.button("Activate Skill", true);
                     }
                     dialog.button("Cancel", false);
@@ -160,7 +177,10 @@ public class DungeonA implements Screen {
      * Build the enemies for this dungeon
      */
     public void buildEnemy() {
-        monsters.add(new Monster("Tiger", 2000f, 100f, 50f, Element.EARTH, null));
+        Monster tigerA = new Monster("Tiger A", 2000f, 100f, 50f, Element.EARTH);
+        tigerA.addSkill(new Skill(Skill.LEECH, "Abosrb 100 health from hero/s", 3));
+        tigerA.addSkill(new Skill(Skill.ENTANGLE, "Stuns hero/s", 5));
+        monsters.add(tigerA);
         monsterIcons.add(new ImageButton(new TextureRegionDrawable(new TextureRegion(
                 new Texture(Gdx.files.internal("monsterImgs/tiger.png"))))));
     }
@@ -336,7 +356,7 @@ public class DungeonA implements Screen {
         cardIcon.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                activateCard(newCard);
+                activateCard(newCard, false);
             }
         });
         // Add to table A - one table can only hold up to 5 cards
@@ -357,41 +377,51 @@ public class DungeonA implements Screen {
         // Clear table before rebuilting
         cardTableA.clearChildren();
         cardTableB.clearChildren();
-
+        int addCardIndex = 0;
         for (final Cards card : handCard) {
             Button cardIcon = new Button(card.getCardImage());
             cardIcon.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    activateCard(card);
+                    activateCard(card, false);
                 }
             });
-            if (handCard.indexOf(card) < 6) {
+            if (addCardIndex < 5) {
                 cardTableA.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
+                addCardIndex++;
             }
             else {
                 cardTableB.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
+                addCardIndex++;
             }
         }
     }
 
     /**
      * Increase the specified hp bar based on the given damage value.
-     * This function is only for hero's health bar as monster currently has no
-     * way of healing lost hp
      * @param indexValue index indicating which hp bar is to be updated
      * @param healAmount the value of which the hp bar is increasing by
+     * @param type of healing unit, Monster or Hero
      */
-    private void increaseHPBar(int indexValue, float healAmount){
+    public void increaseHPBar(int indexValue, float healAmount, String type){
         // Update the hp bar of hero at the specified index
         heroHPBars.get(indexValue).setValue(party.get(indexValue).getCurrentHP());
         // Create a label to show the amount healed
         Label healLabel = new Label("+" + healAmount, guiSkin);
         healLabel.setFontScale(4f);
-        healLabel.setColor(Color.GREEN);
-        float x = heroTable.getCell(heroIcons.get(indexValue)).getActorX();
-        healLabel.setPosition(x+20, heroTable.getTop()+10);
         healLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f), Actions.fadeOut(0.5f), Actions.removeActor(healLabel)));
+        healLabel.setColor(Color.GREEN);
+        if (type == "Monster") {
+            monsterHPBars.get(indexValue).setValue(monsters.get(indexValue).getCurrentHP());
+            float x = monsterTable.getCell(monsterIcons.get(0)).getActorX();
+            healLabel.setPosition(x*2, Gdx.graphics.getHeight() - 40);
+        }
+        else {
+            // Update the hp bar of hero at the specified index
+            heroHPBars.get(indexValue).setValue(party.get(indexValue).getCurrentHP());
+            float x = heroTable.getCell(heroIcons.get(indexValue)).getActorX();
+            healLabel.setPosition(x + 20, heroTable.getTop() + 10);
+        }
         dungeonA_Battle.addActor(healLabel);
     }
 
@@ -399,16 +429,17 @@ public class DungeonA implements Screen {
      * Decrease the specified hp bar based on the given damage value
      * @param indexValue index indicating which hp bar is to be updated
      * @param damage the value of which the hp bar is decreasing by
+     * @param type of damaged unit, Monster or Hero
      */
-    private void decreaseHPBar(int indexValue, float damage){
+    public void decreaseHPBar(int indexValue, float damage, String type){
         Label damageLabel = new Label("-" + damage, guiSkin);
         damageLabel.setFontScale(4f);
         damageLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f), Actions.fadeOut(0.5f), Actions.removeActor(damageLabel)));
         damageLabel.setColor(Color.RED);
         // Update monster's hp bar
-        if(indexValue == -1){
-            monsterHPBars.get(0).setValue(monsters.get(0).getCurrentHP());
-            float x = monsterTable.getCell(monsterIcons.get(0)).getActorX();
+        if(type == "Monster"){
+            monsterHPBars.get(indexValue).setValue(monsters.get(indexValue).getCurrentHP());
+            float x = monsterTable.getCell(monsterIcons.get(indexValue)).getActorX();
             damageLabel.setPosition(x*2, Gdx.graphics.getHeight() - 40 - damageLabelPadding);
             damageLabelPadding += 60;
         }
@@ -421,77 +452,133 @@ public class DungeonA implements Screen {
         dungeonA_Battle.addActor(damageLabel);
     }
 
-    public void activateCard(Cards card){
-        handCard.remove(handCard.indexOf(card));
-        // According to API to table cell cannot be deleted, hence the display table need
-        // be rebulit to reflect the change
-        rebuiltCardTable();
-
+    /**
+     * Activate the card clicked by the player, however only one card from each type of cards
+     * (Buff, Damage, Trap,Ultimate) can be activated. According to API table cell cannot be deleted,
+     * hence the two display table needs to be rebuilt to display player handcards correctly.
+     * @param card card to be activated
+     */
+    public void activateCard(Cards card, boolean castedSpell){
         if(card instanceof BuffCard){
-            ArrayList<Float> healAmounts = ((BuffCard)card).activate(party);
-            // Display activated buff card (except heal) effect
-            if (((BuffCard) card).getEffect() != "") {
-                Label effectLabel = new Label(((BuffCard) card).getEffect(), guiSkin);
-                effectLabel.setFontScale(3f);
-                effectLabel.setColor(229f/255, 226f/255, 60f/255, 1);
-                effectLabel.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/3);
-                effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f), Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
-                dungeonA_Battle.addActor(effectLabel);
-            }
-            // Meaning the buff card activated was heal
-            if (healAmounts.size() != 0) {
-                for (Hero hero : party) {
-                    if (hero.getCurrentHP() > 0) {
-                        int heroIndex = party.indexOf(hero);
-                        float healAmount = healAmounts.get(heroIndex);
-                        if (hero.getCurrentHP() + healAmount > hero.getMaxHP()) {
-                            healAmount = Math.round(hero.getMaxHP() - hero.getCurrentHP());
-                            hero.setCurrentHP(hero.getMaxHP());
-                            increaseHPBar(heroIndex, healAmount);
-                        }
-                        else {
-                            hero.setCurrentHP(hero.getMaxHP() + healAmounts.get(heroIndex));
-                            increaseHPBar(heroIndex, healAmount);
+            if (actBuffCardCount < 1) {
+                ArrayList<Float> healAmounts = ((BuffCard) card).activate(party);
+                // Display activated buff card (except heal) effect
+                if (((BuffCard) card).getEffect() != "") {
+                    Label effectLabel = new Label(((BuffCard) card).getEffect(), guiSkin);
+                    effectLabel.setFontScale(3f);
+                    effectLabel.setColor(229f / 255, 226f / 255, 60f / 255, 1);
+                    effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
+                    effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f), Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
+                    dungeonA_Battle.addActor(effectLabel);
+                }
+                // Meaning the buff card activated was heal
+                if (healAmounts.size() != 0) {
+                    for (Hero hero : party) {
+                        if (hero.getCurrentHP() > 0) {
+                            int heroIndex = party.indexOf(hero);
+                            float healAmount = healAmounts.get(heroIndex);
+                            if (hero.getCurrentHP() + healAmount > hero.getMaxHP()) {
+                                healAmount = Math.round(hero.getMaxHP() - hero.getCurrentHP());
+                                hero.setCurrentHP(hero.getMaxHP());
+                                increaseHPBar(heroIndex, healAmount, "Hero");
+                            } else {
+                                hero.setCurrentHP(hero.getMaxHP() + healAmounts.get(heroIndex));
+                                increaseHPBar(heroIndex, healAmount, "Hero");
+                            }
                         }
                     }
                 }
+                actBuffCardCount++;
+                handCard.remove(handCard.indexOf(card));
+                rebuiltCardTable();
+            }
+            // Notify player about activation failure
+            else {
+                notifyCardActivationFailure("Buff");
             }
         }
         else if(card instanceof TrapCard){
-            // Only one enemy for now - hard coded solution (may be improved to allow player to choose target)
-            ((TrapCard)card).activate(monsters.get(0));
+            if (actTrapCardCount < 1) {
+                // Only one enemy for now - hard coded solution (may be improved to allow player to choose target)
+                ((TrapCard) card).activate(monsters.get(0));
+                actTrapCardCount++;
+                handCard.remove(handCard.indexOf(card));
+                rebuiltCardTable();
+            }
+            else {
+                notifyCardActivationFailure("Trap");
+            }
         }
         else if(card instanceof DamageCard){
-            decreaseHPBar(-1, ((DamageCard)card).activate(monsters.get(0)));
+            if (actDamageCardCount < 1 || castedSpell) {
+                // Play damage card sound
+                if (((DamageCard) card).getName() == "Gust") {
+                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("cardSound/gustSound.mp3"));
+                }
+                else if (((DamageCard) card).getName() == "Earthquake") {
+                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("cardSound/earthquakeSound.mp3"));
+                }
+                if (((DamageCard) card).getName() == "Fire Nova") {
+                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("cardSound/firenovaSound.mp3"));
+                }
+                else {
+                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("cardSound/tidecallingSound.mp3"));
+                }
+                damageSound.play();
+                for (Monster monster : monsters) {
+                    decreaseHPBar(monsters.indexOf(monster), ((DamageCard) card).activate(monster), "Monster");
+                }
+                if (!castedSpell) {
+                    actDamageCardCount++;
+                    handCard.remove(handCard.indexOf(card));
+                    rebuiltCardTable();
+                }
+            }
+            else {
+                notifyCardActivationFailure("Damage");
+            }
         }
         else{
-            ((UltimateCard)card).activate(party,monsters.get(0));
+            if (actUltimateCardCount < 1) {
+                ((UltimateCard) card).activate(party, monsters.get(0));
+                actUltimateCardCount++;
+                handCard.remove(handCard.indexOf(card));
+                rebuiltCardTable();
+            }
+            else {
+                notifyCardActivationFailure("Ultimate");
+            }
         }
     }
 
     /**
-     * Resets the stats of all monster and hero to their base state and decrement
-     * their skill cooldown round
+     * Displays a notification label to notify player about card activation
+     * failure. Message varies depending on the given cardtype parameter
+     * @param cardtype activation failure cardtype
      */
-    private void proceedNextRound() {
-        // Reset heros
-        for(Hero hero: party){
-            hero.setCurrentDamage(hero.getBaseDamage());
-            hero.setCurrentDef(hero.getBaseDef());
-            hero.setStun(false);
-            hero.setInvis(false);
-            hero.getSkill().reduceCooldown(1);
-            ReflectDamage = false;
-            IgnoreDmg = false;
+    private void notifyCardActivationFailure(String cardtype) {
+        String message;
+        if (cardtype == "Buff") {
+            message = "Activation Failed! Only one Buff Card can be activated per turn!";
         }
-        // Reset monsters
-        for (Monster monster : monsters) {
-            monster.setCurrentDamage(monster.getBaseDamage());
-            monster.setCurrentDef(monster.getBaseDef());
-            monster.setSilenced(false);
-            monster.setStun(false);
+        else if (cardtype == "Trap") {
+            message = "Activation Failed! Only one Trap Card can be activated per turn!";
         }
-        damageLabelPadding = 0;
+        else if (cardtype == "Damage") {
+            message = "Activation Failed! Only one Damage Card can be activated per turn!";
+        }
+        else {
+            message = "Activation Failed! Only one Ultimate Card can be activated per turn!";
+        }
+        Label failureLabel = new Label(message, guiSkin);
+        failureLabel.setFontScale(3f);
+        failureLabel.setWrap(true);
+        failureLabel.setWidth(Gdx.graphics.getWidth()/2);
+        failureLabel.setAlignment(Align.center);
+        failureLabel.setColor(Color.RED);
+        failureLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
+        failureLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f), Actions.fadeOut(0.5f), Actions.removeActor(failureLabel)));
+        dungeonA_Battle.addActor(failureLabel);
     }
 
     /**
@@ -505,12 +592,15 @@ public class DungeonA implements Screen {
                 // and the hero is not being hard cc
                 if (!hero.isStun()) {
                     float damage = monsters.get(0).calculateDamage(hero, "Attack");
-                    decreaseHPBar(-1, damage);
+                    decreaseHPBar(0, damage, "Monster");
                 }
             }
             // All monster dead, player win
             if (monsters.get(0).getCurrentHP() <= 0) {
-                // Player wins, notify battle outcome
+                // Player wins, change bgm and notify battle outcome
+                bgm.stop();
+                bgm = Gdx.audio.newMusic(Gdx.files.internal("bgm/victoryBGM.ogg"));
+                bgm.play();
                 Dialog dialog = new Dialog("Battle Outcome", guiSkin, "default") {
                     public void result(Object obj) {
                         if (obj.equals(true)) {
@@ -531,48 +621,108 @@ public class DungeonA implements Screen {
         }
 
         // Monster attacking phase
-        if (monsters.get(0).getCurrentHP() > 0) {
-            if (!monsters.get(0).isStun() || !IgnoreDmg) {
-                Random rd = new Random();
-                int targetIndex = rd.nextInt(party.size());
-                // Choose another target if current target is already dead
-                while (party.get(targetIndex).getCurrentHP() < 1) {
-                    targetIndex = rd.nextInt(party.size());
+        for (Monster monster : monsters) {
+            if (!monster.isStun() || !IgnoreDmg) {
+                int targetIndex;
+
+                if (monster.getTauntingSource() != null) {
+                    targetIndex = party.indexOf(monster.getTauntingSource());
                 }
-                if (!ReflectDamage) {
-                    // Monster attacks the randomly selected target hero
-                    decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monsters.get(0), "Attack"));
-                }
-                // Monster attack got reflected
                 else {
-                    float reflectDmg = party.get(targetIndex).calculateDamage(monsters.get(0), "Reflect");
-                    monsters.get(0).takeDamage(reflectDmg);
-                    decreaseHPBar(-1, reflectDmg);
+                    Random rd = new Random();
+                    targetIndex = rd.nextInt(party.size());
+                    // If the last standing hero is invisible
+                    // then the monster won't attack
+                    if (checkAliveHeroes() == 1) {
+                        targetIndex = -1;
+                    }
+                    // Choose another target if current target is already dead
+                    // or currently invisible to monsters
+                    else {
+                        while (party.get(targetIndex).getCurrentHP() <= 0.0f ||
+                                party.get(targetIndex).isInvis()) {
+                            targetIndex = rd.nextInt(party.size());
+                        }
+                    }
                 }
 
-                // When all heros are dead, it's game over
-                if (checkAllHeroesDead()) {
-                    // Player loses, notify battle outcome
-                    Dialog dialog = new Dialog("Battle Outcome", guiSkin, "default") {
-                        public void result(Object obj) {
-                            if (obj.equals(true)) {
-                                game.setScreen(new WorldMap(game));
-                                dispose();
+                if (targetIndex != -1) {
+                    if (!ReflectDamage) {
+                        // Monster attacks the selected target hero
+                        decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monster, "Attack"), "Hero");
+                    }
+                    // Monster attack got reflected
+                    else {
+                        float reflectDmg = party.get(targetIndex).calculateDamage(monster, "Reflect");
+                        monster.takeDamage(reflectDmg);
+                        decreaseHPBar(monsters.indexOf(monster), reflectDmg, "Monster");
+                    }
+
+                    // When all heros are dead, it's game over
+                    if (checkAllHeroesDead()) {
+                        // Player loses, change bgm and notify battle outcome
+                        bgm.stop();
+                        bgm = Gdx.audio.newMusic(Gdx.files.internal("bgm/gameoverBGM.ogg"));
+                        bgm.play();
+                        Dialog dialog = new Dialog("Battle Outcome", guiSkin, "default") {
+                            public void result(Object obj) {
+                                if (obj.equals(true)) {
+                                    game.setScreen(new WorldMap(game));
+                                    dispose();
+                                }
                             }
-                        }
-                    };
-                    dialog.text("GAME OVER!!! Play smarter next time!");
-                    dialog.button("Finish", true);
-                    dialog.setSize(320, 130);
-                    dialog.getContentTable().align(Align.center);
-                    dialog.getTitleTable().align(Align.center);
-                    dialog.setPosition(Gdx.graphics.getWidth()/2-dialog.getWidth(), Gdx.graphics.getHeight()/2);
-                    dialog.setScale(2f);
-                    dungeonA_Battle.addActor(dialog);
+                        };
+                        dialog.text("GAME OVER!!! Play smarter next time!");
+                        dialog.button("Finish", true);
+                        dialog.setSize(320, 130);
+                        dialog.getContentTable().align(Align.center);
+                        dialog.getTitleTable().align(Align.center);
+                        dialog.setPosition(Gdx.graphics.getWidth() / 2 - dialog.getWidth(), Gdx.graphics.getHeight() / 2);
+                        dialog.setScale(2f);
+                        dungeonA_Battle.addActor(dialog);
+                    }
                 }
             }
         }
         proceedNextRound();
+    }
+
+    /**
+     * Resets the stats of all monster and hero to their base state and decrement
+     * their skill cooldown round
+     */
+    private void proceedNextRound() {
+        // Reset heros
+        for(Hero hero: party){
+            hero.setCurrentDamage(hero.getBaseDamage());
+            hero.setCurrentDef(hero.getBaseDef());
+            hero.setStun(false);
+            hero.setInvis(false);
+            hero.getSkill().reduceCooldown(1);
+            ReflectDamage = false;
+            IgnoreDmg = false;
+        }
+        // Reset monsters
+        for (Monster monster : monsters) {
+            monster.reduceCooldown();
+            if (!monster.isSilenced()) {
+                for (Skill skill : monster.getSkillList()) {
+                    if (skill.getCurrentCooldown() == 0) {
+                        monster.activateSkill(this);
+                    }
+                }
+            }
+            monster.setCurrentDamage(monster.getBaseDamage());
+            monster.setCurrentDef(monster.getBaseDef());
+            monster.setSilenced(false);
+            monster.setStun(false);
+            monster.setTauntingSource(null);
+        }
+        damageLabelPadding = 0;
+        actBuffCardCount = 0;
+        actTrapCardCount = 0;
+        actDamageCardCount = 0;
+        actUltimateCardCount = 0;
     }
 
     /**
@@ -589,6 +739,19 @@ public class DungeonA implements Screen {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Check how many hero are still alive
+     * @return the number of alive hero/s
+     */
+    private int checkAliveHeroes() {
+        int count = 0;
+        for(Hero hero: party){
+            if(hero.getCurrentHP() > 0f)
+                count++;
+        }
+        return count;
     }
 
     @Override
@@ -636,9 +799,10 @@ public class DungeonA implements Screen {
     public void dispose() {
         batch.dispose();
         guiSkin.dispose();
-        guiSkin2.dispose();
-        dungeonA_Battle.dispose();
         bgm.dispose();
+        if (damageSound != null) {
+            damageSound.dispose();
+        }
+        dungeonA_Battle.dispose();
     }
-
 }
