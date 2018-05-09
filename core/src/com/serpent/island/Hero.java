@@ -55,6 +55,7 @@ public class Hero extends Creatures {
         }
 
         skill.resetCooldown();
+        dungeon.checkWinningCondition();
     }
 
     public String getStats() {

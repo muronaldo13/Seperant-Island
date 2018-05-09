@@ -74,6 +74,7 @@ public class Monster extends Creatures{
                     }
                 }
                 skill.resetCooldown();
+                dungeon.checkWinningCondition();
             }
         }
     }

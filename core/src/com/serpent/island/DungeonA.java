@@ -617,29 +617,7 @@ public class DungeonA implements Screen {
                     decreaseHPBar(0, damage, "Monster", hero.getName());
                 }
             }
-            // All monster dead, player win
-            if (monsters.get(0).getCurrentHP() <= 0) {
-                // Player wins, change bgm and notify battle outcome
-                bgm.stop();
-                bgm = Gdx.audio.newMusic(Gdx.files.internal("bgm/victoryBGM.ogg"));
-                bgm.play();
-                Dialog dialog = new Dialog("Battle Outcome", guiSkin, "default") {
-                    public void result(Object obj) {
-                        if (obj.equals(true)) {
-                            game.setScreen(new WorldMap(game));
-                            dispose();
-                        }
-                    }
-                };
-                dialog.text("Congratulation! You Win!");
-                dialog.button("Finish", true);
-                dialog.setSize(320, 130);
-                dialog.getContentTable().align(Align.center);
-                dialog.getTitleTable().align(Align.center);
-                dialog.setPosition(Gdx.graphics.getWidth()/2-dialog.getWidth(), Gdx.graphics.getHeight()/2);
-                dialog.setScale(2f);
-                dungeonA_Battle.addActor(dialog);
-            }
+            checkWinningCondition();
         }
 
         // Monster attacking phase
@@ -679,36 +657,57 @@ public class DungeonA implements Screen {
                         monster.takeDamage(reflectDmg);
                         decreaseHPBar(monsters.indexOf(monster), reflectDmg, "Monster", monster.getName());
                     }
-
-                    // When all heros are dead, it's game over
-                    if (checkAllHeroesDead()) {
-                        // Player loses, change bgm and notify battle outcome
-                        bgm.stop();
-                        bgm = Gdx.audio.newMusic(Gdx.files.internal("bgm/gameoverBGM.ogg"));
-                        bgm.play();
-                        Dialog dialog = new Dialog("Battle Outcome", guiSkin, "default") {
-                            public void result(Object obj) {
-                                if (obj.equals(true)) {
-                                    game.setScreen(new WorldMap(game));
-                                    dispose();
-                                }
-                            }
-                        };
-                        dialog.text("GAME OVER!!! Play smarter next time!");
-                        dialog.button("Finish", true);
-                        dialog.setSize(320, 130);
-                        dialog.getContentTable().align(Align.center);
-                        dialog.getTitleTable().align(Align.center);
-                        dialog.setPosition(Gdx.graphics.getWidth() / 2 - dialog.getWidth(), Gdx.graphics.getHeight() / 2);
-                        dialog.setScale(2f);
-                        dungeonA_Battle.addActor(dialog);
-                    }
+                    checkWinningCondition();
                 }
             }
         }
         proceedNextRound();
     }
 
+    public void checkWinningCondition(){
+        // When all heros are dead, it's game over
+        // All monster dead, player win
+        if(monsters.get(0).getCurrentHP() <= 0 || checkAllHeroesDead()) {
+            Dialog dialog = null;
+            if (monsters.get(0).getCurrentHP() <= 0) {
+                // Player wins, change bgm and notify battle outcome
+                bgm.stop();
+                bgm = Gdx.audio.newMusic(Gdx.files.internal("bgm/victoryBGM.ogg"));
+                bgm.play();
+                dialog = new Dialog("Battle Outcome", guiSkin, "default") {
+                    public void result(Object obj) {
+                        if (obj.equals(true)) {
+                            game.setScreen(new WorldMap(game));
+                            dispose();
+                        }
+                    }
+                };
+                dialog.text("Congratulation! You Win!");
+            } else if (checkAllHeroesDead()) {
+                Gdx.app.error("Heroes", "DEAD");
+                // Player loses, change bgm and notify battle outcome
+                bgm.stop();
+                bgm = Gdx.audio.newMusic(Gdx.files.internal("bgm/gameoverBGM.ogg"));
+                bgm.play();
+                dialog = new Dialog("Battle Outcome", guiSkin, "default") {
+                    public void result(Object obj) {
+                        if (obj.equals(true)) {
+                            game.setScreen(new WorldMap(game));
+                            dispose();
+                        }
+                    }
+                };
+                dialog.text("GAME OVER!!! Play smarter next time!");
+            }
+            dialog.button("Finish", true);
+            dialog.setSize(320, 130);
+            dialog.getContentTable().align(Align.center);
+            dialog.getTitleTable().align(Align.center);
+            dialog.setPosition(Gdx.graphics.getWidth() / 2 - dialog.getWidth(), Gdx.graphics.getHeight() / 2);
+            dialog.setScale(2f);
+            dungeonA_Battle.addActor(dialog);
+        }
+    }
     /**
      * Resets the stats of all monster and hero to their base state and decrement
      * their skill cooldown round
@@ -754,7 +753,7 @@ public class DungeonA implements Screen {
     private boolean checkAllHeroesDead() {
         int deadCount = 0;
         for(Hero hero: party){
-            if(hero.getCurrentHP() == 0f)
+            if(hero.getCurrentHP() <= 0)
                 deadCount++;
         }
         if(deadCount == party.size()) {
