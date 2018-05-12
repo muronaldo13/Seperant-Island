@@ -46,36 +46,46 @@ public class Monster extends Creatures{
     public void activateSkill(DungeonA dungeon) {
         for(Skill skill: skillList){
             if (skill.getCurrentCooldown() == 0 && !silenced) {
-                if (tauntingSource != null) {
-                    Hero source = dungeon.party.get(dungeon.party.indexOf(tauntingSource));
-                    if (skill.getName().equals(Skill.LEECH)) {
-                        source.takeDamage(100f);
-                        dungeon.decreaseHPBar(dungeon.party.indexOf(source), 100f, "Hero", null);
-                        healAmount(100f);
-                        dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
-                    }
-                    else {
-                        source.setStun(true);
+                if(skill.getName().equals(Skill.INVIS)){
+                    for(Hero hero: dungeon.party){
+                        hero.setStun(true);
                     }
                 }
-                else {
-                    for (Hero hero : dungeon.party) {
-                        if (!hero.isDead()) {
-                            if (skill.getName().equals(Skill.LEECH)) {
-                                hero.takeDamage(100f);
-                                dungeon.decreaseHPBar(dungeon.party.indexOf(hero), 100f, "Hero",null);
-                                healAmount(100f);
-                                dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
-                            }
-                            else {
-                                hero.setStun(true);
+                if(!DungeonA.ReflectDamage) {
+                    if (tauntingSource != null) {
+                        Hero source = dungeon.party.get(dungeon.party.indexOf(tauntingSource));
+                        if (skill.getName().equals(Skill.LEECH)) {
+                            source.takeDamage(100f);
+                            dungeon.decreaseHPBar(dungeon.party.indexOf(source), 100f, "Hero", null);
+                            healAmount(100f);
+                            dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
+                        }
+                    } else {
+                        for (Hero hero : dungeon.party) {
+                            if (!hero.isDead()) {
+                                if (skill.getName().equals(Skill.LEECH)) {
+                                    if (!hero.isDead()) {
+                                        hero.takeDamage(100f);
+                                        dungeon.decreaseHPBar(dungeon.party.indexOf(hero), 100f, "Hero", null);
+                                        healAmount(100f);
+                                        dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                skill.resetCooldown();
-                dungeon.checkWinningCondition();
+                else{
+                    if(skill.getName().equals(Skill.LEECH)){
+                        takeDamage(100f);
+                        dungeon.decreaseHPBar(dungeon.monsters.indexOf(0), 100f, "Monster", "Reflect Damage");
+                        healAmount(100f);
+                        dungeon.increaseHPBar(dungeon.monsters.indexOf(0), 100f, "Monster");
+                    }
+                }
             }
+            skill.resetCooldown();
+            dungeon.checkWinningCondition();
         }
     }
 

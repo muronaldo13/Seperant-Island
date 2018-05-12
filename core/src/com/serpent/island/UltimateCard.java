@@ -12,18 +12,14 @@ import java.util.ArrayList;
  */
 
 public class UltimateCard extends Cards {
-    private Drawable cardImage;
-
     public UltimateCard(String imgPath){
-        super(imgPath);
+        super(imgPath, "Ultimate Card");
     }
 
-    public void activate(ArrayList<Hero> heroList, Monster enemy){
-//        for(Hero hero: heroList){
-//            hero.activateSkill(enemy);
-//        }
-//        if(enemy.getCurrentHP() == (enemy.getMaxHP() * 15/100)){
-//            enemy.setCurrentHP(0);
-//        }
+    public void activate(DungeonA dungeon){
+        for(Hero hero: dungeon.party){
+            hero.activateSkill(dungeon);
+        }
+
     }
 }

@@ -12,14 +12,20 @@ import java.util.Random;
  */
 
 public abstract class Cards {
+
+
+    protected String cardName;
     private String imgPath;
     private Drawable cardImage;
 
-    public Cards(String imgPath){
+    public Cards(String imgPath, String cardName){
+        this.cardName = cardName;
         this.imgPath = imgPath;
         cardImage = new TextureRegionDrawable(new TextureRegion(new Texture(imgPath)));
     }
-
+    public String getCardName() {
+        return cardName;
+    }
     public Drawable getCardImage() {
         return cardImage;
     }

@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
@@ -60,7 +61,7 @@ public class DungeonA implements Screen {
     private int actDamageCardCount;
     private int actUltimateCardCount;
     public static boolean ReflectDamage = false;
-    public static boolean IgnoreDmg = false;
+    private Dialog cardInfoDialog;
 
     public DungeonA(Game game) {
         // variable initialisation
@@ -370,13 +371,12 @@ public class DungeonA implements Screen {
     public void addCardToDeck(){
         final Cards newCard = Cards.generateRandomCard();
         handCard.add(newCard);
-
         // Display the added card in the field
         Button cardIcon = new Button(newCard.getCardImage());
         cardIcon.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                activateCard(newCard, false);
+                makeCardInfoDialog(newCard);
             }
         });
         // Add to table A - one table can only hold up to 5 cards
@@ -403,7 +403,7 @@ public class DungeonA implements Screen {
             cardIcon.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    activateCard(card, false);
+                    makeCardInfoDialog(card);
                 }
             });
             if (addCardIndex < 5) {
@@ -415,6 +415,23 @@ public class DungeonA implements Screen {
                 addCardIndex++;
             }
         }
+    }
+
+    private void makeCardInfoDialog(final Cards card){
+        cardInfoDialog = new Dialog("",guiSkin);
+        cardInfoDialog.setSize(56,88);
+        Image image = new Image();
+        image.setDrawable(card.getCardImage());
+        cardInfoDialog.button("Cancel", false);
+        cardInfoDialog.add(image);
+        cardInfoDialog.show(dungeonA_Battle);
+        image.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                activateCard(card, false);
+                cardInfoDialog.hide();
+            }
+        });
     }
 
     /**
@@ -483,30 +500,20 @@ public class DungeonA implements Screen {
         if(card instanceof BuffCard){
             if (actBuffCardCount < 1) {
                 ArrayList<Float> healAmounts = ((BuffCard) card).activate(party);
-                // Display activated buff card (except heal) effect
-                if (((BuffCard) card).getEffect() != "") {
-                    Label effectLabel = new Label(((BuffCard) card).getEffect(), guiSkin);
-                    effectLabel.setFontScale(3f);
-                    effectLabel.setColor(229f / 255, 226f / 255, 60f / 255, 1);
-                    effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
-                    effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f),
-                            Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
-                    dungeonA_Battle.addActor(effectLabel);
-                }
+                Label effectLabel = new Label(((BuffCard) card).getEffect(), guiSkin);
+                effectLabel.setFontScale(3f);
+                effectLabel.setColor(229f / 255, 226f / 255, 60f / 255, 1);
+                effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
+                effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f),
+                        Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
+                dungeonA_Battle.addActor(effectLabel);
                 // Meaning the buff card activated was heal
-                if (healAmounts.size() != 0) {
-                    for (Hero hero : party) {
-                        if (hero.getCurrentHP() > 0) {
-                            int heroIndex = party.indexOf(hero);
-                            float healAmount = healAmounts.get(heroIndex);
-                            if (hero.getCurrentHP() + healAmount > hero.getMaxHP()) {
-                                healAmount = Math.round(hero.getMaxHP() - hero.getCurrentHP());
-                                hero.setCurrentHP(hero.getMaxHP());
-                                increaseHPBar(heroIndex, healAmount, "Hero");
-                            } else {
-                                hero.setCurrentHP(hero.getMaxHP() + healAmounts.get(heroIndex));
-                                increaseHPBar(heroIndex, healAmount, "Hero");
-                            }
+                if (!healAmounts.isEmpty()) {
+                    for (int i = 0; i< party.size(); i++) {
+                        if (!party.get(i).isDead()) {
+                            float healAmount = healAmounts.get(i);
+                            increaseHPBar(i, healAmount, "Hero");
+
                         }
                     }
                 }
@@ -562,7 +569,7 @@ public class DungeonA implements Screen {
         }
         else{
             if (actUltimateCardCount < 1) {
-                ((UltimateCard) card).activate(party, monsters.get(0));
+                ((UltimateCard) card).activate(this);
                 actUltimateCardCount++;
                 handCard.remove(handCard.indexOf(card));
                 rebuiltCardTable();
@@ -622,7 +629,7 @@ public class DungeonA implements Screen {
 
         // Monster attacking phase
         for (Monster monster : monsters) {
-            if (!monster.isStun() && !IgnoreDmg) {
+            if (!monster.isStun()) {
                 int targetIndex;
 
                 if (monster.getTauntingSource() != null) {
@@ -631,35 +638,28 @@ public class DungeonA implements Screen {
                 else {
                     Random rd = new Random();
                     targetIndex = rd.nextInt(party.size());
-                    // If the last standing hero is invisible
-                    // then the monster won't attack
-                    if (checkAliveHeroes() == 1) {
-                        targetIndex = -1;
-                    }
+
                     // Choose another target if current target is already dead
                     // or currently invisible to monsters
-                    else {
-                        while (party.get(targetIndex).getCurrentHP() <= 0.0f ||
-                                party.get(targetIndex).isInvis()) {
-                            targetIndex = rd.nextInt(party.size());
-                        }
+                    while (party.get(targetIndex).getCurrentHP() <= 0.0f ||
+                            party.get(targetIndex).isInvis()) {
+                        targetIndex = rd.nextInt(party.size());
                     }
                 }
 
-                if (targetIndex != -1) {
-                    if (!ReflectDamage) {
-                        // Monster attacks the selected target hero
-                        decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monster, "Attack"), "Hero", null);
-                    }
-                    // Monster attack got reflected
-                    else {
-                        float reflectDmg = party.get(targetIndex).calculateDamage(monster, "Reflect");
-                        monster.takeDamage(reflectDmg);
-                        decreaseHPBar(monsters.indexOf(monster), reflectDmg, "Monster", monster.getName());
-                    }
-                    checkWinningCondition();
+                if (!ReflectDamage) {
+                    // Monster attacks the selected target hero
+                    decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monster, "Attack"), "Hero", null);
                 }
+                // Monster attack got reflected
+                else {
+                    float reflectDmg = party.get(targetIndex).calculateDamage(monster, "Reflect");
+                    monster.takeDamage(reflectDmg);
+                    decreaseHPBar(monsters.indexOf(monster), reflectDmg, "Monster", monster.getName());
+                }
+                checkWinningCondition();
             }
+
         }
         proceedNextRound();
     }
@@ -721,7 +721,6 @@ public class DungeonA implements Screen {
             hero.setInvis(false);
             hero.getSkill().reduceCooldown(1);
             ReflectDamage = false;
-            IgnoreDmg = false;
         }
         // Reset monsters
         for (Monster monster : monsters) {

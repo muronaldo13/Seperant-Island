@@ -14,27 +14,25 @@ public class TrapCard extends Cards{
     public static final String Reflecting = "Reflecting Damage";
     public static final String IgnoreDmg = "Ignore Damage";
 
-    private String name;
 
     public TrapCard(String name, String imgPath){
-        super(imgPath);
-        this.name = name;
+        super(imgPath, name);
     }
 
-    public String getName() {return name;}
+    public String getName() {return cardName;}
 
     public void activate(Monster enemy){
-        if(name.equals(Stun)){
+        if(cardName.equals(Stun)){
             enemy.setStun(true);
         }
-        else if(name.equals(Silence)){
+        else if(cardName.equals(Silence)){
             enemy.setSilenced(true);
         }
-        else if(name.equals(Reflecting)){
+        else if(cardName.equals(Reflecting)){
             DungeonA.ReflectDamage = true;
         }
-        else if(name.equals(IgnoreDmg)){
-            DungeonA.IgnoreDmg = true;
+        else if(cardName.equals(IgnoreDmg)){
+            enemy.setStun(true);
         }
     }
 }

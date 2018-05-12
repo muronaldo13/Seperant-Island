@@ -11,13 +11,11 @@ public class BuffCard extends Cards {
     public static final String DAMAGE = "DAMAGE_BUFF";
     public static final String DEFENSE = "DEFENSE_BUFF";
     public static final String COOLDOWN = "REDUCE_COOLDOWN";
-    private String buffName;
     private int effectMargin;
     private String effect;
 
     public BuffCard(String buffName, int effectMargin, String imgPath){
-        super(imgPath);
-        this.buffName = buffName;
+        super(imgPath,buffName);
         this.effectMargin = effectMargin;
     }
 
@@ -26,22 +24,22 @@ public class BuffCard extends Cards {
     public ArrayList<Float> activate(ArrayList<Hero> heroList) {
         ArrayList<Float> healAmouts = new ArrayList<Float>();
         for(Hero hero: heroList){
-            if(buffName.equals(HEAL)){
+            if(cardName.equals(HEAL)){
                 // Only alive hero will be healed
-                if (hero.getCurrentHP() > 0) {
-                    float healAmount = hero.getMaxHP() * effectMargin /100;
+                if (!hero.isDead()) {
+                    float healAmount = hero.healPercentage(effectMargin);
                     healAmouts.add(healAmount);
                 }
                 else {
                     healAmouts.add(0f);
                 }
-                effect = "";
+                effect = "HP increased by " + effectMargin + "% HP";
             }
-            else if(buffName.equals(DAMAGE)){
+            else if(cardName.equals(DAMAGE)){
                 hero.increasePercentageDamage(effectMargin);
                 effect = "Attack increased by " + effectMargin + "%";
             }
-            else if(buffName.equals(DEFENSE)){
+            else if(cardName.equals(DEFENSE)){
                 hero.increasePercentageDef(effectMargin);
                 effect = "Defence increased by " + effectMargin + "%";
             }

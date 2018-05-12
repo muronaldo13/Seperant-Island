@@ -94,7 +94,7 @@ public abstract class Creatures {
     }
 
     public boolean isDead() {
-        if (currentHP < 0f) {
+        if (currentHP <= 0f) {
             return true;
         }
         return false;
@@ -143,6 +143,7 @@ public abstract class Creatures {
         currentHP -= dmg;
         if (currentHP < 0) {
             currentHP = 0;
+
         }
         return dmg;
     }
@@ -161,17 +162,21 @@ public abstract class Creatures {
         return dmg;
     }
 
-    public void healAmount(float amount){
-        if(currentHP + amount >= maxHP)
+    public float healAmount(float amount){
+        if(currentHP + amount >= maxHP) {
             currentHP = maxHP;
+            return maxHP - currentHP;
+        }
+
         else {
             currentHP += amount;
+            return amount;
         }
     }
 
-    public void healPercentage(int percentage){
+    public float healPercentage(float percentage){
         float amount = maxHP * percentage / 100;
-        healAmount(amount);
+        return healAmount(amount);
     }
 
     public abstract void activateSkill(DungeonA dungeon);
