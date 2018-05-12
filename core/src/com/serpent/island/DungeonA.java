@@ -713,15 +713,6 @@ public class DungeonA implements Screen {
      * their skill cooldown round
      */
     private void proceedNextRound() {
-        // Reset heros
-        for(Hero hero: party){
-            hero.setCurrentDamage(hero.getBaseDamage());
-            hero.setCurrentDef(hero.getBaseDef());
-            hero.setStun(false);
-            hero.setInvis(false);
-            hero.getSkill().reduceCooldown(1);
-            ReflectDamage = false;
-        }
         // Reset monsters
         for (Monster monster : monsters) {
             monster.reduceCooldown();
@@ -738,6 +729,15 @@ public class DungeonA implements Screen {
             monster.setStun(false);
             monster.setTauntingSource(null);
         }
+        // Reset heros
+        for(Hero hero: party){
+            hero.setCurrentDamage(hero.getBaseDamage());
+            hero.setCurrentDef(hero.getBaseDef());
+            hero.setStun(false);
+            hero.setInvis(false);
+            hero.getSkill().reduceCooldown(1);
+        }
+        ReflectDamage = false;
         damageLabelPadding = 0;
         actBuffCardCount = 0;
         actTrapCardCount = 0;

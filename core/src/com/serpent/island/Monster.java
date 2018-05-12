@@ -78,9 +78,9 @@ public class Monster extends Creatures{
                 else{
                     if(skill.getName().equals(Skill.LEECH)){
                         takeDamage(100f);
-                        dungeon.decreaseHPBar(dungeon.monsters.indexOf(0), 100f, "Monster", "Reflect Damage");
+                        dungeon.decreaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster", Skill.LEECH);
                         healAmount(100f);
-                        dungeon.increaseHPBar(dungeon.monsters.indexOf(0), 100f, "Monster");
+                        dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
                     }
                 }
             }
