@@ -23,9 +23,11 @@ public abstract class Cards {
         this.imgPath = imgPath;
         cardImage = new TextureRegionDrawable(new TextureRegion(new Texture(imgPath)));
     }
+
     public String getCardName() {
         return cardName;
     }
+
     public Drawable getCardImage() {
         return cardImage;
     }
@@ -34,7 +36,7 @@ public abstract class Cards {
         Random rd = new Random();
         int value = rd.nextInt(101);
         if(value < 5){
-            return new UltimateCard("cardArts/execution.png");
+            return new UltimateCard("card_imgs/energy_burst.png");
         }
         else if (value >= 5 && value < 10){
             return generateRandomDamageCard();
@@ -52,13 +54,13 @@ public abstract class Cards {
         int value = rd.nextInt(4);
         switch(value){
             case 0:
-                return new BuffCard(BuffCard.HEAL,generateRandomStat(20,50), "cardArts/heal.png");
+                return new BuffCard(BuffCard.HEAL,generateRandomStat(20,50), "card_imgs/heal.png");
             case 1:
-                return new BuffCard(BuffCard.COOLDOWN,generateRandomStat(1,3), "cardArts/cooldownreduce.png");
+                return new BuffCard(BuffCard.COOLDOWN,generateRandomStat(1,3), "card_imgs/cooldown_reduce.png");
             case 2:
-                return new BuffCard(BuffCard.DAMAGE,generateRandomStat(20,100), "cardArts/damagebuff.png");
+                return new BuffCard(BuffCard.DAMAGE,generateRandomStat(20,100), "card_imgs/damage_buff.png");
             case 3:
-                return new BuffCard(BuffCard.DEFENSE,generateRandomStat(20,100), "cardArts/defense.png");
+                return new BuffCard(BuffCard.DEFENSE,generateRandomStat(20,100), "card_imgs/defense_buff.png");
         }
         return null;
     }
@@ -68,13 +70,13 @@ public abstract class Cards {
         int value = rd.nextInt(4);
         switch (value){
             case 0:
-                return new DamageCard(Element.WATER, "cardArts/callingtide.png");
+                return new DamageCard(Element.WATER, "card_imgs/callingtide.png");
             case 1:
-                return new DamageCard(Element.FIRE, "cardArts/firenova.png");
+                return new DamageCard(Element.FIRE, "card_imgs/firenova.png");
             case 2:
-                return new DamageCard(Element.EARTH, "cardArts/earthquake.png");
+                return new DamageCard(Element.EARTH, "card_imgs/earthquake.png");
             case 3:
-                return new DamageCard(Element.AIR, "cardArts/gust.png");
+                return new DamageCard(Element.AIR, "card_imgs/gust.png");
         }
         return null;
     }
@@ -84,13 +86,13 @@ public abstract class Cards {
         int value = rd.nextInt(4);
         switch (value){
             case 0:
-                return new TrapCard(TrapCard.IgnoreDmg, "cardArts/barrier.png");
+                return new TrapCard(TrapCard.IgnoreDmg, "card_imgs/barrier.png");
             case 1:
-                return new TrapCard(TrapCard.Reflecting, "cardArts/reflectdmg.png");
+                return new TrapCard(TrapCard.Reflecting, "card_imgs/reflect_dmg.png");
             case 2:
-                return new TrapCard(TrapCard.Silence, "cardArts/silence.png");
+                return new TrapCard(TrapCard.Silence, "card_imgs/silence.png");
             case 3:
-                return new TrapCard(TrapCard.Stun, "cardArts/stonegaze.png");
+                return new TrapCard(TrapCard.Stun, "card_imgs/stonegaze.png");
         }
         return null;
     }

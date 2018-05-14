@@ -34,7 +34,7 @@ public class WorldMap implements Screen {
     public WorldMap(Game game) {
         this.game = game;
         batch = new SpriteBatch();
-        worldmap_s = new Sprite(new Texture(Gdx.files.internal("worldmap.png")));
+        worldmap_s = new Sprite(new Texture(Gdx.files.internal("background_imgs/worldmap.png")));
         worldmap_s.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // Set up bgm
@@ -51,7 +51,7 @@ public class WorldMap implements Screen {
         Gdx.input.setInputProcessor(serpentIslandMain);
 
         // Make the drawable for button
-        Drawable dungeonA_D = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("buttonImgs/secreatisland.png"))));
+        Drawable dungeonA_D = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("background_imgs/secreatisland.png"))));
 
         // Add the first dungeon's button to the stage
         ImageButton dungeonAButton = new ImageButton(dungeonA_D);

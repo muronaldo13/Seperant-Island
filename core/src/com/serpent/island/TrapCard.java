@@ -35,4 +35,17 @@ public class TrapCard extends Cards{
             enemy.setStun(true);
         }
     }
+
+    public String getEffect() {
+        if (cardName == Stun) {
+            return "All enemies are stunned for 1 round!";
+        }
+        else if (cardName == Silence) {
+            return "All enemies are silenced for 1 round!";
+        }
+        else if (cardName == Reflecting) {
+            return "Damage reflection barrier activated";
+        }
+        return "Ignoring all incoming damage in this turn";
+    }
 }

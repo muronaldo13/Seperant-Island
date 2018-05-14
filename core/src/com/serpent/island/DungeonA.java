@@ -47,7 +47,7 @@ public class DungeonA implements Screen {
     private ArrayList<ProgressBar> heroHPBars;
     private ArrayList<Cards> handCard;
     protected ArrayList<Monster> monsters;
-    private ArrayList<ImageButton> monsterIcons;
+    private ArrayList<Button> monsterIcons;
     private ArrayList<ProgressBar> monsterHPBars;
     private Table monsterTable;
     private Table heroTable;
@@ -67,7 +67,7 @@ public class DungeonA implements Screen {
         // variable initialisation
         this.game = game;
         batch = new SpriteBatch();
-        background = new Sprite(new Texture(Gdx.files.internal("dungeonA.png")));
+        background = new Sprite(new Texture(Gdx.files.internal("background_imgs/dungeonA.png")));
         background.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         guiSkin = new Skin(Gdx.files.internal("gui/uiskin.json"));
         dungeonA_Battle = new Stage(new ScreenViewport());
@@ -76,7 +76,7 @@ public class DungeonA implements Screen {
         heroHPBars = new ArrayList<ProgressBar>();
         handCard = new ArrayList<Cards>();
         monsters = new ArrayList<Monster>();
-        monsterIcons = new ArrayList<ImageButton>();
+        monsterIcons = new ArrayList<Button>();
         monsterHPBars = new ArrayList<ProgressBar>();
         damageLabelPadding = 0;
         actBuffCardCount = 0;
@@ -121,13 +121,13 @@ public class DungeonA implements Screen {
 
         // Make the image buttons to display the heros
         heroIcons.add(new Button(new TextureRegionDrawable(new TextureRegion(
-                new Texture(Gdx.files.internal("heroImgs/andrew.png"))))));
+                new Texture(Gdx.files.internal("hero_Imgs/andrew.png"))))));
         heroIcons.add(new Button(new TextureRegionDrawable(new TextureRegion(
-                new Texture(Gdx.files.internal("heroImgs/hira.png"))))));
+                new Texture(Gdx.files.internal("hero_Imgs/hira.png"))))));
         heroIcons.add(new Button(new TextureRegionDrawable(new TextureRegion(
-                new Texture(Gdx.files.internal("heroImgs/jessica.png"))))));
+                new Texture(Gdx.files.internal("hero_Imgs/jessica.png"))))));
         heroIcons.add(new Button(new TextureRegionDrawable(new TextureRegion(
-                new Texture(Gdx.files.internal("heroImgs/matt.png"))))));
+                new Texture(Gdx.files.internal("hero_Imgs/matt.png"))))));
 
         // Apply listener to hero icons and build skill activation confirmation dialog
         for (int i = 0; i < party.size(); i++) {
@@ -150,6 +150,13 @@ public class DungeonA implements Screen {
                     // Activate skill
                     if (obj.equals(true)) {
                         party.get(characterIndex).activateSkill(DungeonA.this);
+                        Label effectLabel = new Label(party.get(characterIndex).getSkillEffect(), guiSkin);
+                        effectLabel.setFontScale(3f);
+                        effectLabel.setColor(229f / 255, 226f / 255, 60f / 255, 1);
+                        effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
+                        effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f),
+                                Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
+                        dungeonA_Battle.addActor(effectLabel);
                     }
                 }
             };
@@ -188,6 +195,7 @@ public class DungeonA implements Screen {
         dialog.setScale(2f);
         dungeonA_Battle.addActor(dialog);
     }
+
     /**
      * Build the enemies for this dungeon
      */
@@ -196,8 +204,8 @@ public class DungeonA implements Screen {
         tigerA.addSkill(new Skill(Skill.LEECH, "Abosrb 100 health from hero/s", 3));
         tigerA.addSkill(new Skill(Skill.ENTANGLE, "Stuns hero/s", 5));
         monsters.add(tigerA);
-        monsterIcons.add(new ImageButton(new TextureRegionDrawable(new TextureRegion(
-                new Texture(Gdx.files.internal("monsterImgs/tiger.png"))))));
+        monsterIcons.add(new Button(new TextureRegionDrawable(new TextureRegion(
+                new Texture(Gdx.files.internal("monster_Imgs/tiger.png"))))));
         monsterIcons.get(0).addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -277,7 +285,7 @@ public class DungeonA implements Screen {
         monsterTable = new Table();
         monsterTable.setWidth(Gdx.graphics.getWidth());
         monsterTable.align(Align.center | Align.top);
-        for (ImageButton monsterIcon : monsterIcons) {
+        for (Button monsterIcon : monsterIcons) {
             monsterTable.add(monsterIcon);
         }
         monsterTable.setPosition(0, Gdx.graphics.getHeight());
@@ -423,7 +431,7 @@ public class DungeonA implements Screen {
         Image image = new Image();
         image.setDrawable(card.getCardImage());
         cardInfoDialog.button("Cancel", false);
-        cardInfoDialog.add(image);
+        cardInfoDialog.getContentTable().add(image);
         cardInfoDialog.show(dungeonA_Battle);
         image.addListener(new ClickListener(){
             @Override
@@ -480,12 +488,14 @@ public class DungeonA implements Screen {
             float x = monsterTable.getCell(monsterIcons.get(indexValue)).getActorX();
             damageLabel.setPosition(x*2, Gdx.graphics.getHeight() - 40 - damageLabelPadding);
             damageLabelPadding += 60;
+            monsterIcons.get(indexValue).addAction(Actions.sequence(Actions.color(Color.RED, 0.5f), Actions.color(Color.WHITE, 0.5f)));
         }
         // Update the hp bar of hero at the specified index
         else{
             heroHPBars.get(indexValue).setValue(party.get(indexValue).getCurrentHP());
             float x = heroTable.getCell(heroIcons.get(indexValue)).getActorX();
             damageLabel.setPosition(x+20, heroTable.getTop()+10);
+            heroIcons.get(indexValue).addAction(Actions.sequence(Actions.color(Color.RED, 0.5f), Actions.color(Color.WHITE, 0.5f)));
         }
         dungeonA_Battle.addActor(damageLabel);
     }
@@ -531,6 +541,13 @@ public class DungeonA implements Screen {
                 // Only one enemy for now - hard coded solution (may be improved to allow player to choose target)
                 ((TrapCard) card).activate(monsters.get(0));
                 actTrapCardCount++;
+                Label effectLabel = new Label(((TrapCard) card).getEffect(), guiSkin);
+                effectLabel.setFontScale(3f);
+                effectLabel.setColor(229f / 255, 226f / 255, 60f / 255, 1);
+                effectLabel.setPosition(Gdx.graphics.getWidth() / 7, Gdx.graphics.getHeight() / 3);
+                effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f),
+                        Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
+                dungeonA_Battle.addActor(effectLabel);
                 handCard.remove(handCard.indexOf(card));
                 rebuiltCardTable();
             }
@@ -542,16 +559,16 @@ public class DungeonA implements Screen {
             if (actDamageCardCount < 1 || castedSpell) {
                 // Play damage card sound
                 if (((DamageCard) card).getName() == "Gust") {
-                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("cardSound/gustSound.mp3"));
+                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/gust.mp3"));
                 }
                 else if (((DamageCard) card).getName() == "Earthquake") {
-                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("cardSound/earthquakeSound.mp3"));
+                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/earthquake.mp3"));
                 }
                 if (((DamageCard) card).getName() == "Fire Nova") {
-                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("cardSound/firenovaSound.mp3"));
+                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/firenova.mp3"));
                 }
                 else {
-                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("cardSound/tidecallingSound.mp3"));
+                    damageSound = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/tidecalling.mp3"));
                 }
                 damageSound.play();
                 for (Monster monster : monsters) {
@@ -650,6 +667,7 @@ public class DungeonA implements Screen {
                 if (!ReflectDamage) {
                     // Monster attacks the selected target hero
                     decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monster, "Attack"), "Hero", null);
+
                 }
                 // Monster attack got reflected
                 else {
@@ -708,6 +726,7 @@ public class DungeonA implements Screen {
             dungeonA_Battle.addActor(dialog);
         }
     }
+
     /**
      * Resets the stats of all monster and hero to their base state and decrement
      * their skill cooldown round

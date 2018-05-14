@@ -13,13 +13,16 @@ import java.util.ArrayList;
 
 public class UltimateCard extends Cards {
     public UltimateCard(String imgPath){
-        super(imgPath, "Ultimate Card");
+        super(imgPath, "Energy Burst");
     }
 
     public void activate(DungeonA dungeon){
         for(Hero hero: dungeon.party){
             hero.activateSkill(dungeon);
         }
+    }
 
+    public String getEffect() {
+        return "Releasing hero's potential energy!";
     }
 }
