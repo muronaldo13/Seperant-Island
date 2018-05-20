@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -28,6 +29,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
@@ -368,7 +370,7 @@ public class DungeonA implements Screen {
      */
     public void buildCardDeck() {
         // Game begin with 5 cards in player's hand
-        for (int i=0; i< 5; i++) {
+        for (int i = 0; i < 5; i++) {
             addCardToDeck();
         }
     }
@@ -377,10 +379,11 @@ public class DungeonA implements Screen {
      *
      */
     public void addCardToDeck(){
+
         final Cards newCard = Cards.generateRandomCard();
         handCard.add(newCard);
         // Display the added card in the field
-        Button cardIcon = new Button(newCard.getCardImage());
+        final Button cardIcon = new Button(newCard.getCardImage());
         cardIcon.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -389,20 +392,36 @@ public class DungeonA implements Screen {
         });
         // Add to table A - one table can only hold up to 5 cards
         if (handCard.size() < 6) {
-            cardTableA.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
+            Timer.schedule(new Timer.Task(){
+                @Override
+                public void run() {
+                    cardTableA.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
+                    cardTableA.validate();
+                    Vector2 location = cardIcon.localToParentCoordinates(new Vector2(cardTableA.getX(),cardTableA.getY()));
+                    cardIcon.addAction(Actions.moveTo(location.x+1000,-360));
+                    cardIcon.addAction(Actions.moveTo(location.x,-360,0.8f));
+                }
+            }, 2f);
 
         }
         // More than 6 card so add to table B
         else {
             cardTableB.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
+            cardTableB.validate();
+            Vector2 location = cardIcon.localToParentCoordinates(new Vector2(cardTableB.getX(),cardTableB.getY()));
+            cardIcon.addAction(Actions.moveTo(location.x+1000,-360));
+            cardIcon.addAction(Actions.moveTo(location.x,-360,0.8f));
         }
+
+
     }
 
     /**
      * Reconstruct the card display area
      */
-    public void rebuiltCardTable() {
+    public void rebuiltCardTable(int index) {
         // Clear table before rebuilting
+
         cardTableA.clearChildren();
         cardTableB.clearChildren();
         int addCardIndex = 0;
@@ -417,6 +436,7 @@ public class DungeonA implements Screen {
             if (addCardIndex < 5) {
                 cardTableA.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
                 addCardIndex++;
+
             }
             else {
                 cardTableB.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
@@ -528,8 +548,9 @@ public class DungeonA implements Screen {
                     }
                 }
                 actBuffCardCount++;
-                handCard.remove(handCard.indexOf(card));
-                rebuiltCardTable();
+                int index = handCard.indexOf(card);
+                handCard.remove(index);
+                rebuiltCardTable(index);
             }
             // Notify player about activation failure
             else {
@@ -548,8 +569,9 @@ public class DungeonA implements Screen {
                 effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f),
                         Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
                 dungeonA_Battle.addActor(effectLabel);
-                handCard.remove(handCard.indexOf(card));
-                rebuiltCardTable();
+                int index = handCard.indexOf(card);
+                handCard.remove(index);
+                rebuiltCardTable(index);
             }
             else {
                 notifyCardActivationFailure("Trap");
@@ -576,8 +598,9 @@ public class DungeonA implements Screen {
                 }
                 if (!castedSpell) {
                     actDamageCardCount++;
-                    handCard.remove(handCard.indexOf(card));
-                    rebuiltCardTable();
+                    int index = handCard.indexOf(card);
+                    handCard.remove(index);
+                    rebuiltCardTable(index);
                 }
             }
             else {
@@ -588,8 +611,9 @@ public class DungeonA implements Screen {
             if (actUltimateCardCount < 1) {
                 ((UltimateCard) card).activate(this);
                 actUltimateCardCount++;
-                handCard.remove(handCard.indexOf(card));
-                rebuiltCardTable();
+                int index = handCard.indexOf(card);
+                handCard.remove(index);
+                rebuiltCardTable(index);
             }
             else {
                 notifyCardActivationFailure("Ultimate");
