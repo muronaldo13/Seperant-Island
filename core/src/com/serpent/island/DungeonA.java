@@ -356,7 +356,7 @@ public class DungeonA implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 // Player can only hold up to 10 cards
                 if (handCard.size() < 10) {
-                    addCardToDeck();
+                    addCardToDeck(true);
                 }
                 doDamage();
                 endTurnButton.addAction(Actions.sequence(Actions.hide(), Actions.delay(2f), Actions.show()));
@@ -371,14 +371,14 @@ public class DungeonA implements Screen {
     public void buildCardDeck() {
         // Game begin with 5 cards in player's hand
         for (int i = 0; i < 5; i++) {
-            addCardToDeck();
+            addCardToDeck(false);
         }
     }
 
     /**
      *
      */
-    public void addCardToDeck(){
+    public void addCardToDeck(boolean singleAdd){
 
         final Cards newCard = Cards.generateRandomCard();
         handCard.add(newCard);
@@ -392,25 +392,27 @@ public class DungeonA implements Screen {
         });
         // Add to table A - one table can only hold up to 5 cards
         if (handCard.size() < 6) {
-            Timer.schedule(new Timer.Task(){
-                @Override
-                public void run() {
-                    cardTableA.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
-                    cardTableA.validate();
-                    Vector2 location = cardIcon.localToParentCoordinates(new Vector2(cardTableA.getX(),cardTableA.getY()));
-                    cardIcon.addAction(Actions.moveTo(location.x+1000,-360));
-                    cardIcon.addAction(Actions.moveTo(location.x,-360,0.8f));
-                }
-            }, 2f);
-
+            cardTableA.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
+            cardTableA.validate();
+            final Vector2 location = cardIcon.localToParentCoordinates(new Vector2(cardTableA.getX(),cardTableA.getY()));
+            cardIcon.addAction(Actions.moveTo(location.x+1200,-360));
+            if(singleAdd)
+                cardIcon.addAction(Actions.moveTo(location.x,-360,0.8f));
+            else {
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        cardIcon.addAction(Actions.moveTo(location.x,-360,0.8f));
+                    }
+                }, 1.5f);
+            }
         }
         // More than 6 card so add to table B
         else {
             cardTableB.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
             cardTableB.validate();
             Vector2 location = cardIcon.localToParentCoordinates(new Vector2(cardTableB.getX(),cardTableB.getY()));
-            cardIcon.addAction(Actions.moveTo(location.x+1000,-360));
-            cardIcon.addAction(Actions.moveTo(location.x,-360,0.8f));
+            cardIcon.addAction(Actions.sequence(Actions.moveTo(location.x+1200,-360),Actions.moveTo(location.x,-360,0.8f)));
         }
 
 
