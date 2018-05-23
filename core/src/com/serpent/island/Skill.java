@@ -46,4 +46,24 @@ public class Skill {
     public void resetCooldown() {
         currentCooldown = totalCooldown;
     }
+
+    public String getSkillFXPath() {
+        String path = "";
+        if (name == TAUNT) {
+            path = "sound_effects/taunt_FX.wav";
+        }
+        else if (name == REVIVE) {
+            path = "sound_effects/revive_FX.mp3";
+        }
+        else if (name == INVIS) {
+            path = "sound_effects/invisible_FX.ogg";
+        }
+        else if (name == LEECH) {
+            path = "sound_effects/leech_FX.mp3";
+        }
+        else if (name == ENTANGLE) {
+            path = "sound_effects/entangle_FX.mp3";
+        }
+        return path;
+    }
 }

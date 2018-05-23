@@ -1,5 +1,8 @@
 package com.serpent.island;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+
 import java.util.ArrayList;
 
 /**
@@ -46,7 +49,7 @@ public class Monster extends Creatures{
     public void activateSkill(DungeonA dungeon) {
         for(Skill skill: skillList){
             if (skill.getCurrentCooldown() == 0 && !silenced) {
-                if(skill.getName().equals(Skill.INVIS)){
+                if(skill.getName().equals(Skill.ENTANGLE)){
                     for(Hero hero: dungeon.party){
                         hero.setStun(true);
                     }
