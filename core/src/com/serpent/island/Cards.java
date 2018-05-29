@@ -34,7 +34,7 @@ public abstract class Cards {
 
     public static Cards generateRandomCard(){
         Random rd = new Random();
-        int value = rd.nextInt(101);
+        int value = rd.nextInt(100);
         if(value < 5){
             return new UltimateCard("card_imgs/energy_burst.png");
         }

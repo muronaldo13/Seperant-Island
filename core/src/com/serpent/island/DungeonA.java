@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -20,7 +19,6 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -55,7 +53,8 @@ public class DungeonA implements Screen {
     private Table heroTable;
     private Table cardTableA;
     private Table cardTableB;
-    private float damageLabelPadding;
+    private float monsterDamageLabelPadding;
+    public float monsterHealingLabelPadding;
     private Music bgm;
     private Music damageCardFX;
     private Music buffCardFX;
@@ -85,7 +84,8 @@ public class DungeonA implements Screen {
         monsters = new ArrayList<Monster>();
         monsterIcons = new ArrayList<Button>();
         monsterHPBars = new ArrayList<ProgressBar>();
-        damageLabelPadding = 0;
+        monsterDamageLabelPadding = -60;
+        monsterHealingLabelPadding = -60;
         actBuffCardCount = 0;
         actDamageCardCount = 0;
         actTrapCardCount = 0;
@@ -158,10 +158,7 @@ public class DungeonA implements Screen {
                 public void result(Object obj) {
                     // Activate skill
                     if (obj.equals(true)) {
-                        party.get(characterIndex).activateSkill(DungeonA.this);
-                        if(party.get(characterIndex).isInvis()){
-                            heroIcons.get(characterIndex).setColor(Color.LIGHT_GRAY);
-                        }
+                        party.get(characterIndex).activateSkill(DungeonA.this,0);
                         String skillFXPath = party.get(characterIndex).getSkill().getSkillFXPath();
                         if (skillFXPath != "") {
                             heroSkillFX = Gdx.audio.newMusic(Gdx.files.internal(skillFXPath));
@@ -478,7 +475,7 @@ public class DungeonA implements Screen {
      * @param healAmount the value of which the hp bar is increasing by
      * @param type of healing unit, Monster or Hero
      */
-    public void increaseHPBar(int indexValue, float healAmount, String type){
+    public void increaseHPBar(int indexValue, float healAmount, String type, float labelPadding){
         // Update the hp bar of hero at the specified index
         heroHPBars.get(indexValue).setValue(party.get(indexValue).getCurrentHP());
         // Create a label to show the amount healed
@@ -489,7 +486,7 @@ public class DungeonA implements Screen {
         if (type == "Monster") {
             monsterHPBars.get(indexValue).setValue(monsters.get(indexValue).getCurrentHP());
             float x = monsterTable.getCell(monsterIcons.get(0)).getActorX();
-            healLabel.setPosition(x*2, Gdx.graphics.getHeight() - 40);
+            healLabel.setPosition(x, Gdx.graphics.getHeight() - 40 - labelPadding);
         }
         else {
             // Update the hp bar of hero at the specified index
@@ -506,37 +503,37 @@ public class DungeonA implements Screen {
      * @param damage the value of which the hp bar is decreasing by
      * @param type of damaged unit, Monster or Hero
      */
-    public void decreaseHPBar(int indexValue, float damage, String type, String name){
+    public void decreaseHPBar(int indexValue, float damage, String type, String name, float damageLabelPadding){
         Label damageLabel = new Label("-" + damage +  (name == null? "":" (" + name +")"), guiSkin);
-        damageLabel.setFontScale(4f);
+
         damageLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f),
                 Actions.fadeOut(0.5f), Actions.removeActor(damageLabel)));
         damageLabel.setColor(Color.RED);
         // Update monster's hp bar
 
         if(type == "Monster"){
+            damageLabel.setFontScale(4f);
             monsterHPBars.get(indexValue).setValue(monsters.get(indexValue).getCurrentHP());
             float x = monsterTable.getCell(monsterIcons.get(indexValue)).getActorX();
             damageLabel.setPosition(x*2, Gdx.graphics.getHeight() - 40 - damageLabelPadding);
-            damageLabelPadding += 60;
             Color monsterColor = monsterIcons.get(indexValue).getColor();
             monsterIcons.get(indexValue).addAction(Actions.sequence(Actions.color(Color.RED, 0.5f), Actions.color(monsterColor, 0.5f)));
         }
         // Update the hp bar of hero at the specified index
         else{
+            if(damageLabelPadding >0) {
+                damageLabel.setFontScale(2.2f);
+            }
+            else {
+                damageLabel.setFontScale(4f);
+            }
             heroHPBars.get(indexValue).setValue(party.get(indexValue).getCurrentHP());
             float x = heroTable.getCell(heroIcons.get(indexValue)).getActorX();
-            damageLabel.setPosition(x+20, heroTable.getTop()+10);
+            damageLabel.setPosition(x+20, heroTable.getTop()+10 + damageLabelPadding);
             if(party.get(indexValue).isDead())
                 heroIcons.get(indexValue).setColor(Color.DARK_GRAY);
             else {
-                Color heroColor;
-                if(party.get(indexValue).isStun())
-                    heroColor = Color.BLUE;
-                else if(party.get(indexValue).isInvis())
-                    heroColor = Color.LIGHT_GRAY;
-                else
-                    heroColor = Color.WHITE;
+                Color heroColor = heroIcons.get(indexValue).getColor();
                 heroIcons.get(indexValue).addAction(Actions.sequence(Actions.color(Color.RED, 0.5f), Actions.color(heroColor, 0.5f)));
             }
 
@@ -582,7 +579,7 @@ public class DungeonA implements Screen {
                     for (int i = 0; i< party.size(); i++) {
                         if (!party.get(i).isDead()) {
                             float healAmount = healAmounts.get(i);
-                            increaseHPBar(i, healAmount, "Hero");
+                            increaseHPBar(i, healAmount, "Hero",0);
                         }
                     }
                 }
@@ -637,7 +634,7 @@ public class DungeonA implements Screen {
             if (actDamageCardCount < 1 || castedSpell) {
                 // Play damage card sound
                 if (((DamageCard) card).getName() == "Gust") {
-                    damageCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/gust.mp3"));
+                    damageCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/earthquake.mp3"));
                 }
                 else if (((DamageCard) card).getName() == "Earthquake") {
                     damageCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/earthquake.mp3"));
@@ -650,8 +647,10 @@ public class DungeonA implements Screen {
                 }
                 damageCardFX.play();
                 for (Monster monster : monsters) {
-                    decreaseHPBar(monsters.indexOf(monster), ((DamageCard) card).activate(monster), "Monster", ((DamageCard) card).getName());
-                    if(checkWinningCondition()) return;
+                    float damage = ((DamageCard) card).activate(monster);
+                    decreaseHPBar(monsters.indexOf(monster),damage , "Monster", ((DamageCard) card).getName(),monsterDamageLabelPadding += 60);
+                    if(checkWinningCondition())
+                        return;
                 }
                 if (!castedSpell) {
                     actDamageCardCount++;
@@ -719,7 +718,7 @@ public class DungeonA implements Screen {
                 // and the hero is not being hard cc
                 if (!hero.isStun()) {
                     float damage = monsters.get(0).calculateDamage(hero, "Attack");
-                    decreaseHPBar(0, damage, "Monster", hero.getName());
+                    decreaseHPBar(0, damage, "Monster", hero.getName(),monsterDamageLabelPadding+=60);
                     heroAttackFX.play();
                 }
             }
@@ -753,14 +752,14 @@ public class DungeonA implements Screen {
 
                 if (!ReflectDamage) {
                     // Monster attacks the selected target hero
-                    decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monster, "Attack"), "Hero", null);
+                    decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monster, "Attack"), "Hero", null,0);
 
                 }
                 // Monster attack got reflected
                 else {
                     float reflectDmg = party.get(targetIndex).calculateDamage(monster, "Reflect");
                     monster.takeDamage(reflectDmg);
-                    decreaseHPBar(monsters.indexOf(monster), reflectDmg, "Monster", monster.getName());
+                    decreaseHPBar(monsters.indexOf(monster), reflectDmg, "Monster", monster.getName(),monsterDamageLabelPadding+=60);
                 }
             }
         }
@@ -862,7 +861,8 @@ public class DungeonA implements Screen {
             hero.getSkill().reduceCooldown(1);
         }
         ReflectDamage = false;
-        damageLabelPadding = 0;
+        monsterDamageLabelPadding = -60;
+        monsterHealingLabelPadding = -60;
         actBuffCardCount = 0;
         actTrapCardCount = 0;
         actDamageCardCount = 0;

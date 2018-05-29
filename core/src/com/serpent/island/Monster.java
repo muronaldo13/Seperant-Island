@@ -48,7 +48,6 @@ public class Monster extends Creatures{
         }
     }
 
-    @Override
     public Skill activateSkill(DungeonA dungeon) {
         for(Skill skill: skillList) {
             if (skill.getCurrentCooldown() == 0 && !silenced && !stunned) {
@@ -76,9 +75,9 @@ public class Monster extends Creatures{
                         Hero source = dungeon.party.get(dungeon.party.indexOf(tauntingSource));
                         if (skill.getName().equals(Skill.LEECH)) {
                             source.takeDamage(100f);
-                            dungeon.decreaseHPBar(dungeon.party.indexOf(source), 100f, "Hero", null);
+                            dungeon.decreaseHPBar(dungeon.party.indexOf(source), 100f, "Hero", Skill.LEECH,60);
                             healAmount(100f);
-                            dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
+                            dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster",dungeon.monsterHealingLabelPadding+=60);
                         }
 
                     } else {
@@ -87,9 +86,9 @@ public class Monster extends Creatures{
                             if (!hero.isDead()) {
                                 if (skill.getName().equals(Skill.LEECH)) {
                                     hero.takeDamage(100f);
-                                    dungeon.decreaseHPBar(dungeon.party.indexOf(hero), 100f, "Hero", null);
+                                    dungeon.decreaseHPBar(dungeon.party.indexOf(hero), 100f, "Hero", Skill.LEECH,60);
                                     healAmount(100f);
-                                    dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
+                                    dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster",dungeon.monsterHealingLabelPadding+=60);
                                 }
                             }
                         }
@@ -98,9 +97,9 @@ public class Monster extends Creatures{
                 else {
                     if (skill.getName().equals(Skill.LEECH)) {
                         takeDamage(100f);
-                        dungeon.decreaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster", Skill.LEECH);
+                        dungeon.decreaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster", Skill.LEECH,60);
                         healAmount(100f);
-                        dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
+                        dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster",dungeon.monsterHealingLabelPadding+=60);
                     }
                 }
                 return skill;

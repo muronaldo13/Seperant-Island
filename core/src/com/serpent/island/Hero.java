@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
+import javax.smartcardio.Card;
+
 /**
  * Created by Nghia on 2018/4/23.
  */
@@ -47,18 +49,19 @@ public class Hero extends Creatures {
         this.invis = invis;
     }
 
-    @Override
-    public Skill activateSkill( DungeonA dungeon) {
+
+    public Skill activateSkill( DungeonA dungeon, float padding) {
         if(!stunned) {
             Label effectLabel = new Label(skillEffect += skill.getName(), dungeon.getGuiSkin());
             effectLabel.setFontScale(3f);
             effectLabel.setColor(Color.VIOLET);
-            effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
+            effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3 - padding);
             effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(1f),
                     Actions.fadeOut(1f), Actions.removeActor(effectLabel)));
             dungeon.getStage().addActor(effectLabel);
             if (skill.getName().equals(Skill.SUMMONING)) {
-                dungeon.activateCard(DamageCard.generateRandomDamageCard(), true);
+                DamageCard damageCard = DamageCard.generateRandomDamageCard();
+                dungeon.activateCard(damageCard, true);
                 skillEffect = "Summoning random damage card!";
             } else if (skill.getName().equals(Skill.TAUNT)) {
                 this.increaseDef(50f);
@@ -74,12 +77,13 @@ public class Hero extends Creatures {
                             float newHP = hero.getMaxHP() / 3;
                             hero.setCurrentHP(newHP);
                             dungeon.getHeroIcons().get(i).setColor(Color.WHITE);
-                            dungeon.increaseHPBar(dungeon.party.indexOf(hero), newHP, "Hero");
+                            dungeon.increaseHPBar(dungeon.party.indexOf(hero), newHP, "Hero",0);
                         }
                     }
                 }
                 skillEffect = "Reviving dead allies!";
             } else if (skill.getName().equals(Skill.INVIS)) {
+                dungeon.getHeroIcons().get(dungeon.party.indexOf(this)).setColor(Color.LIGHT_GRAY);
                 this.setInvis(true);
                 skillEffect = "Becoming invisible!";
             }

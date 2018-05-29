@@ -141,10 +141,11 @@ public abstract class Creatures {
      */
     public float takeDamage(float dmg){
         dmg -= currentDef;
+        float saveHP = currentHP;
         currentHP -= dmg;
         if (currentHP < 0) {
             currentHP = 0;
-
+            return saveHP;
         }
         return dmg;
     }
@@ -181,7 +182,6 @@ public abstract class Creatures {
         return healAmount(amount);
     }
 
-    public abstract Skill activateSkill(DungeonA dungeon);
 
     @Override
     public boolean equals(Object o) {

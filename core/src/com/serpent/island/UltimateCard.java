@@ -1,11 +1,6 @@
 package com.serpent.island;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
-import java.util.ArrayList;
 
 /**
  * Created by Nghia on 2018/4/23.
@@ -17,8 +12,10 @@ public class UltimateCard extends Cards {
     }
 
     public void activate(DungeonA dungeon){
+        float padding = 0;
         for(Hero hero: dungeon.party){
-            hero.activateSkill(dungeon);
+            hero.activateSkill(dungeon,padding);
+            padding+= 50;
         }
     }
 
