@@ -159,18 +159,14 @@ public class DungeonA implements Screen {
                     // Activate skill
                     if (obj.equals(true)) {
                         party.get(characterIndex).activateSkill(DungeonA.this);
+                        if(party.get(characterIndex).isInvis()){
+                            heroIcons.get(characterIndex).setColor(Color.LIGHT_GRAY);
+                        }
                         String skillFXPath = party.get(characterIndex).getSkill().getSkillFXPath();
                         if (skillFXPath != "") {
                             heroSkillFX = Gdx.audio.newMusic(Gdx.files.internal(skillFXPath));
                             heroSkillFX.play();
                         }
-                        Label effectLabel = new Label(party.get(characterIndex).getSkillEffect(), guiSkin);
-                        effectLabel.setFontScale(3f);
-                        effectLabel.setColor(229f / 255, 226f / 255, 60f / 255, 1);
-                        effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
-                        effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f),
-                                Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
-                        dungeonA_Battle.addActor(effectLabel);
                     }
                 }
             };
@@ -214,7 +210,7 @@ public class DungeonA implements Screen {
      * Build the enemies for this dungeon
      */
     public void buildEnemy() {
-        Monster tigerA = new Monster("Tiger A", 2000f, 100f, 50f, Element.EARTH);
+        Monster tigerA = new Monster("Tiger A", 2000, 100f, 50f, Element.EARTH);
         tigerA.addSkill(new Skill(Skill.LEECH, "Abosrb 100 health from hero/s", 3));
         tigerA.addSkill(new Skill(Skill.ENTANGLE, "Stuns hero/s", 5));
         monsters.add(tigerA);
@@ -517,19 +513,33 @@ public class DungeonA implements Screen {
                 Actions.fadeOut(0.5f), Actions.removeActor(damageLabel)));
         damageLabel.setColor(Color.RED);
         // Update monster's hp bar
+
         if(type == "Monster"){
             monsterHPBars.get(indexValue).setValue(monsters.get(indexValue).getCurrentHP());
             float x = monsterTable.getCell(monsterIcons.get(indexValue)).getActorX();
             damageLabel.setPosition(x*2, Gdx.graphics.getHeight() - 40 - damageLabelPadding);
             damageLabelPadding += 60;
-            monsterIcons.get(indexValue).addAction(Actions.sequence(Actions.color(Color.RED, 0.5f), Actions.color(Color.WHITE, 0.5f)));
+            Color monsterColor = monsterIcons.get(indexValue).getColor();
+            monsterIcons.get(indexValue).addAction(Actions.sequence(Actions.color(Color.RED, 0.5f), Actions.color(monsterColor, 0.5f)));
         }
         // Update the hp bar of hero at the specified index
         else{
             heroHPBars.get(indexValue).setValue(party.get(indexValue).getCurrentHP());
             float x = heroTable.getCell(heroIcons.get(indexValue)).getActorX();
             damageLabel.setPosition(x+20, heroTable.getTop()+10);
-            heroIcons.get(indexValue).addAction(Actions.sequence(Actions.color(Color.RED, 0.5f), Actions.color(Color.WHITE, 0.5f)));
+            if(party.get(indexValue).isDead())
+                heroIcons.get(indexValue).setColor(Color.DARK_GRAY);
+            else {
+                Color heroColor;
+                if(party.get(indexValue).isStun())
+                    heroColor = Color.BLUE;
+                else if(party.get(indexValue).isInvis())
+                    heroColor = Color.LIGHT_GRAY;
+                else
+                    heroColor = Color.WHITE;
+                heroIcons.get(indexValue).addAction(Actions.sequence(Actions.color(Color.RED, 0.5f), Actions.color(heroColor, 0.5f)));
+            }
+
         }
         dungeonA_Battle.addActor(damageLabel);
     }
@@ -594,9 +604,11 @@ public class DungeonA implements Screen {
 
                 if (((TrapCard) card).getName() == TrapCard.Silence) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/silence_FX.mp3"));
+                    monsterIcons.get(0).setColor(Color.YELLOW);
                 }
                 else if (((TrapCard) card).getName() == TrapCard.Stun) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/stoneGaze_FX.mp3"));
+                    monsterIcons.get(0).setColor(Color.BLUE);
                 }
                 else if (((TrapCard) card).getName() == TrapCard.IgnoreDmg) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/barrier_FX.mp3"));
@@ -639,6 +651,7 @@ public class DungeonA implements Screen {
                 damageCardFX.play();
                 for (Monster monster : monsters) {
                     decreaseHPBar(monsters.indexOf(monster), ((DamageCard) card).activate(monster), "Monster", ((DamageCard) card).getName());
+                    if(checkWinningCondition()) return;
                 }
                 if (!castedSpell) {
                     actDamageCardCount++;
@@ -702,7 +715,7 @@ public class DungeonA implements Screen {
         // Hero's attacking phase
         for(Hero hero : party) {
             // Only alive hero unit can perform attack
-            if (hero.getCurrentHP() > 0) {
+            if (!hero.isDead()) {
                 // and the hero is not being hard cc
                 if (!hero.isStun()) {
                     float damage = monsters.get(0).calculateDamage(hero, "Attack");
@@ -710,12 +723,18 @@ public class DungeonA implements Screen {
                     heroAttackFX.play();
                 }
             }
-            checkWinningCondition();
         }
 
         // Monster attacking phase
         for (Monster monster : monsters) {
             if (!monster.isStun()) {
+                if(!monster.isSilenced()) {
+                    Skill activatedSkill = monster.activateSkill(this);
+                    if (activatedSkill != null) {
+                        monsterSkillFX = Gdx.audio.newMusic(Gdx.files.internal(activatedSkill.getSkillFXPath()));
+                        monsterSkillFX.play();
+                    }
+                }
                 int targetIndex;
                 if (monster.getTauntingSource() != null) {
                     targetIndex = party.indexOf(monster.getTauntingSource());
@@ -743,14 +762,13 @@ public class DungeonA implements Screen {
                     monster.takeDamage(reflectDmg);
                     decreaseHPBar(monsters.indexOf(monster), reflectDmg, "Monster", monster.getName());
                 }
-                checkWinningCondition();
             }
-
         }
+        if(checkWinningCondition()) return;
         proceedNextRound();
     }
 
-    public void checkWinningCondition(){
+    public boolean checkWinningCondition(){
         // When all heros are dead, it's game over
         // All monster dead, player win
         if(monsters.get(0).getCurrentHP() <= 0 || checkAllHeroesDead()) {
@@ -792,7 +810,9 @@ public class DungeonA implements Screen {
             dialog.setPosition(Gdx.graphics.getWidth() / 2 - dialog.getWidth(), Gdx.graphics.getHeight() / 2);
             dialog.setScale(2f);
             dungeonA_Battle.addActor(dialog);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -801,28 +821,43 @@ public class DungeonA implements Screen {
      */
     private void proceedNextRound() {
         // Reset monsters
-        for (Monster monster : monsters) {
+        for (int i = 0 ; i< monsters.size();i++) {
+            Monster monster = monsters.get(i);
             monster.reduceCooldown();
-            if (!monster.isSilenced()) {
-                for (Skill skill : monster.getSkillList()) {
-                    if (skill.getCurrentCooldown() == 0) {
-                        monster.activateSkill(this);
-                        monsterSkillFX = Gdx.audio.newMusic(Gdx.files.internal(skill.getSkillFXPath()));
-                        monsterSkillFX.play();
-                    }
-                }
-            }
             monster.setCurrentDamage(monster.getBaseDamage());
             monster.setCurrentDef(monster.getBaseDef());
             monster.setSilenced(false);
+            final int finalI = i;
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    monsterIcons.get(finalI).setColor(Color.WHITE);
+                }
+            },1.3f);
             monster.setStun(false);
             monster.setTauntingSource(null);
         }
         // Reset heros
-        for(Hero hero: party){
+        for(int i = 0 ; i<party.size();i++){
+            final Hero hero = party.get(i);
+            if(hero.getStunDuration() >0)
+                hero.setStunDuration(hero.getStunDuration()-1);
+            if(hero.getStunDuration() == 0) {
+                hero.setStun(false);
+                final int finalI = i;
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        if(!hero.isDead()) {
+                            heroIcons.get(finalI).setColor(Color.WHITE);
+                        }else{
+                            heroIcons.get(finalI).setColor(Color.DARK_GRAY);
+                        }
+                    }
+                }, 1.3f);
+            }
             hero.setCurrentDamage(hero.getBaseDamage());
             hero.setCurrentDef(hero.getBaseDef());
-            hero.setStun(false);
             hero.setInvis(false);
             hero.getSkill().reduceCooldown(1);
         }
@@ -903,7 +938,9 @@ public class DungeonA implements Screen {
     public void hide() {
 
     }
-
+    public ArrayList<Button> getHeroIcons() {
+        return heroIcons;
+    }
     @Override
     public void dispose() {
         batch.dispose();
@@ -926,5 +963,13 @@ public class DungeonA implements Screen {
             monsterSkillFX.dispose();
         }
         dungeonA_Battle.dispose();
+    }
+
+    public Skin getGuiSkin() {
+        return guiSkin;
+    }
+
+    public Stage getStage() {
+        return dungeonA_Battle;
     }
 }

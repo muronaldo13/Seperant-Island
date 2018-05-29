@@ -17,7 +17,7 @@ public abstract class Creatures {
     protected float currentDef;
     protected boolean stunned;
     protected float critDamage;
-
+    protected String skillEffect;
     public Creatures(String name, float maxHP, float baseDamage, float baseDef, Element element){
         this.name = name;
         this.maxHP = maxHP;
@@ -29,6 +29,7 @@ public abstract class Creatures {
         this.currentDef = baseDef;
         stunned = false;
         critDamage = 1.5f;
+        skillEffect = name + " activated ";
     }
 
     public String getName() {
@@ -164,8 +165,9 @@ public abstract class Creatures {
 
     public float healAmount(float amount){
         if(currentHP + amount >= maxHP) {
+            float saveCurrent = currentHP;
             currentHP = maxHP;
-            return maxHP - currentHP;
+            return maxHP - saveCurrent;
         }
 
         else {
@@ -179,7 +181,7 @@ public abstract class Creatures {
         return healAmount(amount);
     }
 
-    public abstract void activateSkill(DungeonA dungeon);
+    public abstract Skill activateSkill(DungeonA dungeon);
 
     @Override
     public boolean equals(Object o) {

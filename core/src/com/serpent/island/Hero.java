@@ -1,5 +1,10 @@
 package com.serpent.island;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+
 /**
  * Created by Nghia on 2018/4/23.
  */
@@ -8,14 +13,22 @@ public class Hero extends Creatures {
     private boolean invis;
     private boolean taunt;
     private Skill skill;
-    private String skillEffect;
+    private int stunDuration;
 
     public Hero(String name, float maxHP, float baseDamage, float baseDef,  Element element, Skill skill) {
         super(name, maxHP, baseDamage, baseDef,element);
         this.skill = skill;
-        skillEffect = "";
         invis = false;
         taunt = false;
+        stunDuration = 0;
+    }
+
+    public int getStunDuration() {
+        return stunDuration;
+    }
+
+    public void setStunDuration(int stunDuration) {
+        this.stunDuration = stunDuration;
     }
 
     public String getSkillEffect() {
@@ -35,37 +48,47 @@ public class Hero extends Creatures {
     }
 
     @Override
-    public void activateSkill( DungeonA dungeon) {
-        if (skill.getName().equals(Skill.SUMMONING)) {
-            dungeon.activateCard(DamageCard.generateRandomDamageCard(), true);
-            skillEffect = "Summoning random damage card!";
-        }
-        else if(skill.getName().equals(Skill.TAUNT)){
-            this.increaseDef(50f);
-            for (Monster monster : dungeon.monsters) {
-                monster.setTauntingSource(this);
-            }
-            skillEffect = "Taunting enemies!";
-        }
-        else if(skill.getName().equals(Skill.REVIVE)){
-            for (Hero hero : dungeon.party) {
-                if (hero != this) {
-                    if (hero.isDead()) {
-                        float newHP = hero.getMaxHP()/3;
-                        hero.setCurrentHP(newHP);
-                        dungeon.increaseHPBar(dungeon.party.indexOf(hero), newHP, "Hero");
+    public Skill activateSkill( DungeonA dungeon) {
+        if(!stunned) {
+            Label effectLabel = new Label(skillEffect += skill.getName(), dungeon.getGuiSkin());
+            effectLabel.setFontScale(3f);
+            effectLabel.setColor(Color.VIOLET);
+            effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
+            effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(1f),
+                    Actions.fadeOut(1f), Actions.removeActor(effectLabel)));
+            dungeon.getStage().addActor(effectLabel);
+            if (skill.getName().equals(Skill.SUMMONING)) {
+                dungeon.activateCard(DamageCard.generateRandomDamageCard(), true);
+                skillEffect = "Summoning random damage card!";
+            } else if (skill.getName().equals(Skill.TAUNT)) {
+                this.increaseDef(50f);
+                for (Monster monster : dungeon.monsters) {
+                    monster.setTauntingSource(this);
+                }
+                skillEffect = "Taunting enemies!";
+            } else if (skill.getName().equals(Skill.REVIVE)) {
+                for (int i = 0; i < dungeon.party.size(); i++) {
+                    Hero hero = dungeon.party.get(i);
+                    if (hero != this) {
+                        if (hero.isDead()) {
+                            float newHP = hero.getMaxHP() / 3;
+                            hero.setCurrentHP(newHP);
+                            dungeon.getHeroIcons().get(i).setColor(Color.WHITE);
+                            dungeon.increaseHPBar(dungeon.party.indexOf(hero), newHP, "Hero");
+                        }
                     }
                 }
+                skillEffect = "Reviving dead allies!";
+            } else if (skill.getName().equals(Skill.INVIS)) {
+                this.setInvis(true);
+                skillEffect = "Becoming invisible!";
             }
-            skillEffect = "Reviving dead allies!";
-        }
-        else if(skill.getName().equals(Skill.INVIS)) {
-            this.setInvis(true);
-            skillEffect = "Becoming invisible!";
-        }
 
-        skill.resetCooldown();
-        dungeon.checkWinningCondition();
+            skill.resetCooldown();
+            dungeon.checkWinningCondition();
+            return skill;
+        }
+        return null;
     }
 
     public String getStats() {

@@ -2,6 +2,9 @@ package com.serpent.island;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
 import java.util.ArrayList;
 
@@ -46,15 +49,29 @@ public class Monster extends Creatures{
     }
 
     @Override
-    public void activateSkill(DungeonA dungeon) {
-        for(Skill skill: skillList){
-            if (skill.getCurrentCooldown() == 0 && !silenced) {
-                if(skill.getName().equals(Skill.ENTANGLE)){
-                    for(Hero hero: dungeon.party){
-                        hero.setStun(true);
+    public Skill activateSkill(DungeonA dungeon) {
+        for(Skill skill: skillList) {
+            if (skill.getCurrentCooldown() == 0 && !silenced && !stunned) {
+                Label effectLabel = new Label(skillEffect + skill.getName(), dungeon.getGuiSkin());
+                effectLabel.setFontScale(3f);
+                effectLabel.setColor(Color.VIOLET);
+                effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
+                effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(1f),
+                        Actions.fadeOut(1f), Actions.removeActor(effectLabel)));
+                dungeon.getStage().addActor(effectLabel);
+                skill.resetCooldown();
+                dungeon.checkWinningCondition();
+                if (skill.getName().equals(Skill.ENTANGLE)) {
+                    for (int i = 0 ;i <dungeon.party.size();i++) {
+                        Hero hero = dungeon.party.get(i);
+                        if(!hero.isDead()) {
+                            hero.setStun(true);
+                            hero.setStunDuration(3);
+                            dungeon.getHeroIcons().get(i).setColor(Color.BLUE);
+                        }
                     }
                 }
-                if(!DungeonA.ReflectDamage) {
+                else if (!DungeonA.ReflectDamage) {
                     if (tauntingSource != null) {
                         Hero source = dungeon.party.get(dungeon.party.indexOf(tauntingSource));
                         if (skill.getName().equals(Skill.LEECH)) {
@@ -63,34 +80,35 @@ public class Monster extends Creatures{
                             healAmount(100f);
                             dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
                         }
+
                     } else {
-                        for (Hero hero : dungeon.party) {
+                        for (int i = 0; i < dungeon.party.size(); i++) {
+                            Hero hero = dungeon.party.get(i);
                             if (!hero.isDead()) {
                                 if (skill.getName().equals(Skill.LEECH)) {
-                                    if (!hero.isDead()) {
-                                        hero.takeDamage(100f);
-                                        dungeon.decreaseHPBar(dungeon.party.indexOf(hero), 100f, "Hero", null);
-                                        healAmount(100f);
-                                        dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
-                                    }
+                                    hero.takeDamage(100f);
+                                    dungeon.decreaseHPBar(dungeon.party.indexOf(hero), 100f, "Hero", null);
+                                    healAmount(100f);
+                                    dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
                                 }
                             }
                         }
                     }
                 }
-                else{
-                    if(skill.getName().equals(Skill.LEECH)){
+                else {
+                    if (skill.getName().equals(Skill.LEECH)) {
                         takeDamage(100f);
                         dungeon.decreaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster", Skill.LEECH);
                         healAmount(100f);
                         dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster");
                     }
                 }
+                return skill;
             }
-            skill.resetCooldown();
-            dungeon.checkWinningCondition();
         }
+        return null;
     }
+
 
     public String getStats() {
         String stats = "Name: " + name + "\nElement: "+ element.name() +"\nHP: " + currentHP +"/" + maxHP + "\nATK Point: " + currentDamage
