@@ -479,24 +479,50 @@ public class DungeonA implements Screen {
         // Update the hp bar of hero at the specified index
         heroHPBars.get(indexValue).setValue(party.get(indexValue).getCurrentHP());
         // Create a label to show the amount healed
-        Label healLabel = new Label("+" + healAmount, guiSkin);
-        healLabel.setFontScale(4f);
-        healLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f), Actions.fadeOut(0.5f), Actions.removeActor(healLabel)));
-        healLabel.setColor(Color.GREEN);
+        float positionX = 0;
+        float positionY = 0;
         if (type == "Monster") {
             monsterHPBars.get(indexValue).setValue(monsters.get(indexValue).getCurrentHP());
-            float x = monsterTable.getCell(monsterIcons.get(0)).getActorX();
-            healLabel.setPosition(x, Gdx.graphics.getHeight() - 40 - labelPadding);
+            positionX = monsterTable.getCell(monsterIcons.get(0)).getActorX();
+            positionY = Gdx.graphics.getHeight() - 40 - labelPadding;
         }
         else {
             // Update the hp bar of hero at the specified index
             heroHPBars.get(indexValue).setValue(party.get(indexValue).getCurrentHP());
-            float x = heroTable.getCell(heroIcons.get(indexValue)).getActorX();
-            healLabel.setPosition(x + 20, heroTable.getTop() + 10);
+            positionX = heroTable.getCell(heroIcons.get(indexValue)).getActorX() + 20;
+            positionY = heroTable.getTop() + 10;
         }
-        dungeonA_Battle.addActor(healLabel);
+        displayCardEffectLabel("+" + healAmount, Color.GREEN,positionX,positionY) ;
     }
 
+    public void displayBuffCardEffectLabel(ArrayList<Float> buffAmounts, String type) {
+        for (int i = 0; i < heroIcons.size(); i++) {
+            String content = null;
+            Color color = null;
+            if (type.equals("damage")) {
+                content = "+" + buffAmounts.get(i) + " DMG";
+                color = Color.ORANGE;
+            } else if (type.equals("def")) {
+                content = "+" + buffAmounts.get(i) + " DEF";
+                color = Color.MAGENTA;
+            } else if (type.equals("cd")){
+                content = "+" + String.valueOf(Math.round(buffAmounts.get(i))) + " CD";
+                color = Color.GRAY;
+            }
+            float positionX = heroTable.getCell(heroIcons.get(i)).getActorX() + 20;
+            float positionY = heroTable.getTop() + 10;
+            displayCardEffectLabel(content, color, positionX, positionY);
+        }
+    }
+
+    public void displayCardEffectLabel(String content, Color color, float positionX, float positionY){
+        Label label = new Label(content,guiSkin);
+        label.setFontScale(3f);
+        label.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f), Actions.fadeOut(0.5f), Actions.removeActor(label)));
+        label.setColor(color);
+        label.setPosition(positionX,positionY);
+        dungeonA_Battle.addActor(label);
+    }
     /**
      * Decrease the specified hp bar based on the given damage value
      * @param indexValue index indicating which hp bar is to be updated
@@ -550,19 +576,27 @@ public class DungeonA implements Screen {
     public void activateCard(Cards card, boolean castedSpell){
         if(card instanceof BuffCard){
             if (actBuffCardCount < 1) {
-                ArrayList<Float> healAmounts = ((BuffCard) card).activate(party);
+                ArrayList<Float> buffAmounts = ((BuffCard) card).activate(party);
                 Label effectLabel = new Label(((BuffCard) card).getEffect(), guiSkin);
-
                 if (card.getCardName() == BuffCard.HEAL) {
+                    for (int i = 0; i< party.size(); i++) {
+                        if (!party.get(i).isDead()) {
+                            float healAmount = buffAmounts.get(i);
+                            increaseHPBar(i, healAmount, "Hero",0);
+                        }
+                    }
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/heal_FX.mp3"));
                 }
                 else if (card.getCardName() == BuffCard.DAMAGE) {
+                    displayBuffCardEffectLabel(buffAmounts,"damage");
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/attackBuff_FX.wav"));
                 }
                 else if (card.getCardName() == BuffCard.DEFENSE) {
+                    displayBuffCardEffectLabel(buffAmounts,"def");
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/defenceBuff_FX.wav"));
                 }
                 else {
+                    displayBuffCardEffectLabel(buffAmounts,"cd");
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/reduceCD_FX.wav"));
                 }
                 buffCardFX.play();
@@ -573,16 +607,6 @@ public class DungeonA implements Screen {
                 effectLabel.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeIn(0.5f),
                         Actions.fadeOut(0.5f), Actions.removeActor(effectLabel)));
                 dungeonA_Battle.addActor(effectLabel);
-
-                // Meaning the buff card activated was heal
-                if (!healAmounts.isEmpty()) {
-                    for (int i = 0; i< party.size(); i++) {
-                        if (!party.get(i).isDead()) {
-                            float healAmount = healAmounts.get(i);
-                            increaseHPBar(i, healAmount, "Hero",0);
-                        }
-                    }
-                }
                 actBuffCardCount++;
                 int index = handCard.indexOf(card);
                 handCard.remove(index);

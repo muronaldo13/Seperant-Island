@@ -68,8 +68,10 @@ public abstract class Creatures {
         this.currentDamage = currentDamage;
     }
 
-    public void increasePercentageDamage(int percentage){
-        this.currentDamage += (currentDamage * percentage / 100);
+    public float increasePercentageDamage(int percentage){
+        float damage = currentDamage * percentage / 100;
+        this.currentDamage += (damage);
+        return damage;
     }
 
     public float getCurrentDef() {
@@ -84,8 +86,10 @@ public abstract class Creatures {
         this.currentDef += defValue;
     }
 
-    public void increasePercentageDef(int percentage){
-        this.currentDef += (currentDef * percentage / 100);
+    public float increasePercentageDef(int percentage){
+        float def = currentDef * percentage / 100;
+        this.currentDef += (def);
+        return def;
     }
 
     public boolean isStun() { return stunned; }

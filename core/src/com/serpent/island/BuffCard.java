@@ -19,35 +19,54 @@ public class BuffCard extends Cards {
         this.effectMargin = effectMargin;
     }
 
+    public int getEffectMargin() {
+        return effectMargin;
+    }
+
     public String getEffect() { return effect; }
 
     public ArrayList<Float> activate(ArrayList<Hero> heroList) {
-        ArrayList<Float> healAmouts = new ArrayList<Float>();
+        ArrayList<Float> effectAmount = new ArrayList<Float>();
         for(Hero hero: heroList){
             if(cardName.equals(HEAL)){
                 // Only alive hero will be healed
                 if (!hero.isDead()) {
                     float healAmount = hero.healPercentage(effectMargin);
-                    healAmouts.add(healAmount);
+                    effectAmount.add(healAmount);
                 }
                 else {
-                    healAmouts.add(0f);
+                    effectAmount.add(0f);
                 }
                 effect = "HP increased by " + effectMargin + "% HP";
             }
             else if(cardName.equals(DAMAGE)){
-                hero.increasePercentageDamage(effectMargin);
-                effect = "Attack increased by " + effectMargin + "%";
+                if(!hero.isDead()) {
+                    float damage = hero.increasePercentageDamage(effectMargin);
+                    effectAmount.add(damage);
+                    effect = "Attack increased by " + effectMargin + "%";
+                }
+                else {
+                    effectAmount.add(0f);
+                }
             }
             else if(cardName.equals(DEFENSE)){
-                hero.increasePercentageDef(effectMargin);
-                effect = "Defence increased by " + effectMargin + "%";
+                if(!hero.isDead()) {
+                    float def = hero.increasePercentageDef(effectMargin);
+                    effectAmount.add(def);
+                    effect = "Defence increased by " + effectMargin + "%";
+                }
+                else {
+                    effectAmount.add(0f);
+                }
             }
             else {
-                hero.getSkill().reduceCooldown(effectMargin);
-                effect = "Skill cooldown reduced by " + effectMargin + " rounds";
+                if(!hero.isDead()) {
+                    effectAmount.add((float)effectMargin);
+                    hero.getSkill().reduceCooldown(effectMargin);
+                    effect = "Skill cooldown reduced by " + effectMargin + " rounds";
+                }
             }
         }
-        return healAmouts;
+        return effectAmount;
     }
 }
