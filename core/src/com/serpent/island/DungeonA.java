@@ -56,12 +56,6 @@ public class DungeonA implements Screen {
     private float monsterDamageLabelPadding;
     public float monsterHealingLabelPadding;
     private Music bgm;
-    private Music damageCardFX;
-    private Music buffCardFX;
-    private Music trapCardFX;
-    private Music heroAttackFX;
-    private Music heroSkillFX;
-    private Music monsterSkillFX;
     private int actBuffCardCount;
     private int actTrapCardCount;
     private int actDamageCardCount;
@@ -91,15 +85,13 @@ public class DungeonA implements Screen {
         actDamageCardCount = 0;
         actTrapCardCount = 0;
         actUltimateCardCount = 0;
-//        particleSystem = new ParticleSystem();
-//        particleSystem.init();
+        particleSystem = new ParticleSystem();
+        particleSystem.init();
         // Set up bgm
         bgm = Gdx.audio.newMusic(Gdx.files.internal("bgm/battleBGM.ogg"));
         bgm.setLooping(true);
         bgm.setVolume(0.2f);
         bgm.play();
-
-        heroAttackFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/attack_FX.mp3"));
 
         // Set up the table for displaying cards
         cardTableA = new Table();
@@ -163,7 +155,13 @@ public class DungeonA implements Screen {
                         party.get(characterIndex).activateSkill(DungeonA.this,0);
                         String skillFXPath = party.get(characterIndex).getSkill().getSkillFXPath();
                         if (skillFXPath != "") {
-                            heroSkillFX = Gdx.audio.newMusic(Gdx.files.internal(skillFXPath));
+                            Music heroSkillFX = Gdx.audio.newMusic(Gdx.files.internal(skillFXPath));
+                            heroSkillFX.setOnCompletionListener(new Music.OnCompletionListener()
+                            {
+                                public void onCompletion(Music music) {
+                                    music.dispose();
+                                }
+                            });
                             heroSkillFX.play();
                         }
                     }
@@ -211,7 +209,7 @@ public class DungeonA implements Screen {
     public void buildEnemy() {
         Monster tigerA = new Monster("Tiger A", 2000, 100f, 50f, Element.EARTH);
         tigerA.addSkill(new Skill(Skill.LEECH, "Abosrb 100 health from hero/s", 3));
-        tigerA.addSkill(new Skill(Skill.ENTANGLE, "Stuns hero/s", 5));
+        tigerA.addSkill(new Skill(Skill.ENTANGLE, "Stuns hero/s", 2));
         monsters.add(tigerA);
         monsterIcons.add(new Button(new TextureRegionDrawable(new TextureRegion(
                 new Texture(Gdx.files.internal("monster_Imgs/tiger.png"))))));
@@ -525,6 +523,7 @@ public class DungeonA implements Screen {
         label.setPosition(positionX,positionY);
         dungeonA_Battle.addActor(label);
     }
+
     /**
      * Decrease the specified hp bar based on the given damage value
      * @param indexValue index indicating which hp bar is to be updated
@@ -580,6 +579,7 @@ public class DungeonA implements Screen {
             if (actBuffCardCount < 1) {
                 ArrayList<Float> buffAmounts = ((BuffCard) card).activate(party);
                 Label effectLabel = new Label(((BuffCard) card).getEffect(), guiSkin);
+                Music buffCardFX;
                 if (card.getCardName() == BuffCard.HEAL) {
                     for (int i = 0; i< party.size(); i++) {
                         if (!party.get(i).isDead()) {
@@ -588,12 +588,12 @@ public class DungeonA implements Screen {
                         }
                     }
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/heal_FX.mp3"));
-//                    spawnParticleAtIcons(ParticleSystem.Type.HEAL,true,null);
+                    spawnParticleAtIcons(ParticleSystem.Type.HEAL,true,null);
                 }
                 else if (card.getCardName() == BuffCard.DAMAGE) {
                     displayBuffCardEffectLabel(buffAmounts,"damage");
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/attackBuff_FX.wav"));
-//                    spawnParticleAtIcons(ParticleSystem.Type.DAMAGE_BUFF,true,null);
+//                    spawnParticleAtIcons(ParticleSystem.Type.DAMAGE_BUFF,true, null);
                 }
                 else if (card.getCardName() == BuffCard.DEFENSE) {
                     displayBuffCardEffectLabel(buffAmounts,"def");
@@ -605,6 +605,12 @@ public class DungeonA implements Screen {
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/reduceCD_FX.wav"));
 //                    spawnParticleAtIcons(ParticleSystem.Type.COOLDOWN,true,null);
                 }
+                buffCardFX.setOnCompletionListener(new Music.OnCompletionListener()
+                {
+                    public void onCompletion(Music music) {
+                        music.dispose();
+                    }
+                });
                 buffCardFX.play();
 
                 effectLabel.setFontScale(3f);
@@ -628,11 +634,11 @@ public class DungeonA implements Screen {
                 // Only one enemy for now - hard coded solution (may be improved to allow player to choose target)
                 ((TrapCard) card).activate(monsters.get(0));
                 actTrapCardCount++;
-
+                Music trapCardFX;
                 if (((TrapCard) card).getName() == TrapCard.Silence) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/silence_FX.mp3"));
                     monsterIcons.get(0).setColor(Color.YELLOW);
-//                    spawnParticleAtIcons(ParticleSystem.Type.SILENCED,false,null);
+                    spawnParticleAtIcons(ParticleSystem.Type.SILENCED,false,null);
                 }
                 else if (((TrapCard) card).getName() == TrapCard.Stun) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/stoneGaze_FX.mp3"));
@@ -645,7 +651,14 @@ public class DungeonA implements Screen {
                 else {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/reflectDmg_FX.mp3"));
                 }
+                trapCardFX.setOnCompletionListener(new Music.OnCompletionListener()
+                {
+                    public void onCompletion(Music music) {
+                        music.dispose();
+                    }
+                });
                 trapCardFX.play();
+
                 Label effectLabel = new Label(((TrapCard) card).getEffect(), guiSkin);
                 effectLabel.setFontScale(3f);
                 effectLabel.setColor(229f / 255, 226f / 255, 60f / 255, 1);
@@ -664,21 +677,32 @@ public class DungeonA implements Screen {
         }
         else if(card instanceof DamageCard){
             if (actDamageCardCount < 1 || castedSpell) {
+                Music damageCardFX;
                 // Play damage card sound
                 if (((DamageCard) card).getName() == "Gust") {
-                    damageCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/earthquake.mp3"));
+                    damageCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/gustSound.mp3"));
+                    spawnParticleAtIcons(ParticleSystem.Type.GUST,false,null);
                 }
                 else if (((DamageCard) card).getName() == "Earthquake") {
                     damageCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/earthquake.mp3"));
+                    spawnParticleAtIcons(ParticleSystem.Type.EARTHQUAKE,false,null);
                 }
-                if (((DamageCard) card).getName() == "Fire Nova") {
+                else if (((DamageCard) card).getName() == "Fire Nova") {
                     damageCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/firenova.mp3"));
+                    spawnParticleAtIcons(ParticleSystem.Type.FIRENOVA,false,null);
                 }
                 else {
                     damageCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/tidecalling.mp3"));
+                    spawnParticleAtIcons(ParticleSystem.Type.TIDECALLING,false,null);
                 }
-//                spawnParticleAtIcons(ParticleSystem.Type.DAMAGE_CARD,false,null);
+                damageCardFX.setOnCompletionListener(new Music.OnCompletionListener()
+                {
+                    public void onCompletion(Music music) {
+                        music.dispose();
+                    }
+                });
                 damageCardFX.play();
+//                spawnParticleAtIcons(ParticleSystem.Type.DAMAGE_CARD,false,null);
                 for (Monster monster : monsters) {
                     float damage = ((DamageCard) card).activate(monster);
                     decreaseHPBar(monsters.indexOf(monster),damage , "Monster", ((DamageCard) card).getName(),monsterDamageLabelPadding += 60);
@@ -752,6 +776,14 @@ public class DungeonA implements Screen {
                 if (!hero.isStun()) {
                     float damage = monsters.get(0).calculateDamage(hero, "Attack");
                     decreaseHPBar(0, damage, "Monster", hero.getName(),monsterDamageLabelPadding+=60);
+                    // Audio dispose control
+                    Music heroAttackFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/attack_FX.mp3"));
+                    heroAttackFX.setOnCompletionListener(new Music.OnCompletionListener()
+                    {
+                        public void onCompletion(Music music) {
+                            music.dispose();
+                        }
+                    });
                     heroAttackFX.play();
                 }
             }
@@ -763,7 +795,13 @@ public class DungeonA implements Screen {
                 if(!monster.isSilenced()) {
                     Skill activatedSkill = monster.activateSkill(this);
                     if (activatedSkill != null) {
-                        monsterSkillFX = Gdx.audio.newMusic(Gdx.files.internal(activatedSkill.getSkillFXPath()));
+                        Music monsterSkillFX = Gdx.audio.newMusic(Gdx.files.internal(activatedSkill.getSkillFXPath()));
+                        monsterSkillFX.setOnCompletionListener(new Music.OnCompletionListener()
+                        {
+                            public void onCompletion(Music music) {
+                                music.dispose();
+                            }
+                        });
                         monsterSkillFX.play();
                     }
                 }
@@ -947,19 +985,6 @@ public class DungeonA implements Screen {
         return false;
     }
 
-    /**
-     * Check how many hero are still alive
-     * @return the number of alive hero/s
-     */
-    private int checkAliveHeroes() {
-        int count = 0;
-        for(Hero hero: party){
-            if(hero.getCurrentHP() > 0f)
-                count++;
-        }
-        return count;
-    }
-
     @Override
     public void show() {
         Gdx.input.setInputProcessor(dungeonA_Battle);
@@ -1000,30 +1025,16 @@ public class DungeonA implements Screen {
     public void hide() {
 
     }
+
     public ArrayList<Button> getHeroIcons() {
         return heroIcons;
     }
+
     @Override
     public void dispose() {
         batch.dispose();
         guiSkin.dispose();
         bgm.dispose();
-        heroAttackFX.dispose();
-        if (damageCardFX != null) {
-            damageCardFX.dispose();
-        }
-        if (buffCardFX != null) {
-            buffCardFX.dispose();
-        }
-        if (trapCardFX != null) {
-            trapCardFX.dispose();
-        }
-        if (heroSkillFX != null) {
-            heroSkillFX.dispose();
-        }
-        if (monsterSkillFX != null) {
-            monsterSkillFX.dispose();
-        }
         dungeonA_Battle.dispose();
     }
 
