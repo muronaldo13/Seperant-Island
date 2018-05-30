@@ -69,6 +69,7 @@ public class Monster extends Creatures{
                             dungeon.getHeroIcons().get(i).setColor(Color.BLUE);
                         }
                     }
+//                    dungeon.spawnParticleAtIcons(ParticleSystem.Type.ENTANGLE,true,null);
                 }
                 else if (!DungeonA.ReflectDamage) {
                     if (tauntingSource != null) {
@@ -78,6 +79,7 @@ public class Monster extends Creatures{
                             dungeon.decreaseHPBar(dungeon.party.indexOf(source), 100f, "Hero", Skill.LEECH,60);
                             healAmount(100f);
                             dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster",dungeon.monsterHealingLabelPadding+=60);
+//                            dungeon.spawnParticleAtIcons(ParticleSystem.Type.LEECH,true,dungeon.getHeroIcons().get(dungeon.party.indexOf(source)));
                         }
 
                     } else {
@@ -89,9 +91,11 @@ public class Monster extends Creatures{
                                     dungeon.decreaseHPBar(dungeon.party.indexOf(hero), 100f, "Hero", Skill.LEECH,60);
                                     healAmount(100f);
                                     dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster",dungeon.monsterHealingLabelPadding+=60);
+
                                 }
                             }
                         }
+//                        dungeon.spawnParticleAtIcons(ParticleSystem.Type.LEECH,true,null);
                     }
                 }
                 else {
@@ -100,6 +104,7 @@ public class Monster extends Creatures{
                         dungeon.decreaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster", Skill.LEECH,60);
                         healAmount(100f);
                         dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster",dungeon.monsterHealingLabelPadding+=60);
+//                        dungeon.spawnParticleAtIcons(ParticleSystem.Type.LEECH,false,null);
                     }
                 }
                 return skill;

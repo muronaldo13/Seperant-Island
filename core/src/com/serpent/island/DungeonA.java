@@ -68,6 +68,7 @@ public class DungeonA implements Screen {
     private int actUltimateCardCount;
     public static boolean ReflectDamage = false;
     private Dialog cardInfoDialog;
+    private ParticleSystem particleSystem;
 
     public DungeonA(Game game) {
         // variable initialisation
@@ -90,7 +91,8 @@ public class DungeonA implements Screen {
         actDamageCardCount = 0;
         actTrapCardCount = 0;
         actUltimateCardCount = 0;
-
+//        particleSystem = new ParticleSystem();
+//        particleSystem.init();
         // Set up bgm
         bgm = Gdx.audio.newMusic(Gdx.files.internal("bgm/battleBGM.ogg"));
         bgm.setLooping(true);
@@ -586,18 +588,22 @@ public class DungeonA implements Screen {
                         }
                     }
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/heal_FX.mp3"));
+//                    spawnParticleAtIcons(ParticleSystem.Type.HEAL,true,null);
                 }
                 else if (card.getCardName() == BuffCard.DAMAGE) {
                     displayBuffCardEffectLabel(buffAmounts,"damage");
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/attackBuff_FX.wav"));
+//                    spawnParticleAtIcons(ParticleSystem.Type.DAMAGE_BUFF,true,null);
                 }
                 else if (card.getCardName() == BuffCard.DEFENSE) {
                     displayBuffCardEffectLabel(buffAmounts,"def");
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/defenceBuff_FX.wav"));
+//                    spawnParticleAtIcons(ParticleSystem.Type.DEF_BUFF,true,null);
                 }
                 else {
                     displayBuffCardEffectLabel(buffAmounts,"cd");
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/reduceCD_FX.wav"));
+//                    spawnParticleAtIcons(ParticleSystem.Type.COOLDOWN,true,null);
                 }
                 buffCardFX.play();
 
@@ -626,10 +632,12 @@ public class DungeonA implements Screen {
                 if (((TrapCard) card).getName() == TrapCard.Silence) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/silence_FX.mp3"));
                     monsterIcons.get(0).setColor(Color.YELLOW);
+//                    spawnParticleAtIcons(ParticleSystem.Type.SILENCED,false,null);
                 }
                 else if (((TrapCard) card).getName() == TrapCard.Stun) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/stoneGaze_FX.mp3"));
                     monsterIcons.get(0).setColor(Color.BLUE);
+//                    spawnParticleAtIcons(ParticleSystem.Type.STUN,false,null);
                 }
                 else if (((TrapCard) card).getName() == TrapCard.IgnoreDmg) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/barrier_FX.mp3"));
@@ -669,6 +677,7 @@ public class DungeonA implements Screen {
                 else {
                     damageCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/tidecalling.mp3"));
                 }
+//                spawnParticleAtIcons(ParticleSystem.Type.DAMAGE_CARD,false,null);
                 damageCardFX.play();
                 for (Monster monster : monsters) {
                     float damage = ((DamageCard) card).activate(monster);
@@ -893,6 +902,35 @@ public class DungeonA implements Screen {
         actUltimateCardCount = 0;
     }
 
+    public void spawnParticleAtIcons(ParticleSystem.Type type, boolean heroes, Button oneHero) {
+        float deltaTime = Gdx.graphics.getDeltaTime();
+        if (heroes) {
+            if(oneHero == null){
+                for (int i = 0 ; i< heroIcons.size();i++) {
+                    if(!party.get(i).isDead()) {
+                        int x = (int) heroIcons.get(i).getX();
+                        int y = (int) heroIcons.get(i).getY();
+                        int index = particleSystem.spawn(type);
+                        particleSystem.getPosition()[index].set(x, y);
+                    }
+                }
+            }else{
+                int x = (int) oneHero.getX();
+                int y = (int) oneHero.getY();
+                int i = particleSystem.spawn(type);
+                particleSystem.getPosition()[i].set(x, y);
+            }
+        } else {
+            for (Button monsterIcon : monsterIcons) {
+                int x = (int) monsterIcon.getX();
+                int y = (int) monsterIcon.getY();
+                int i = particleSystem.spawn(type);
+                particleSystem.getPosition()[i].set(x, y);
+            }
+        }
+        particleSystem.update(deltaTime);
+        particleSystem.render(batch);
+    }
     /**
      * Determines whether all heros are dead or not
      * @return true if all heros are dead, false otherwise
