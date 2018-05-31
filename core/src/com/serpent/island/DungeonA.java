@@ -637,12 +637,12 @@ public class DungeonA implements Screen {
                 Music trapCardFX;
                 if (((TrapCard) card).getName() == TrapCard.Silence) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/silence_FX.mp3"));
-                    monsterIcons.get(0).setColor(Color.YELLOW);
+                    monsterIcons.get(0).setColor(166/255f, 74/255f, 226/255f, 1f);
                     spawnParticleAtIcons(ParticleSystem.Type.SILENCED,false,null);
                 }
                 else if (((TrapCard) card).getName() == TrapCard.Stun) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/stoneGaze_FX.mp3"));
-                    monsterIcons.get(0).setColor(Color.BLUE);
+                    monsterIcons.get(0).setColor(Color.YELLOW);
 //                    spawnParticleAtIcons(ParticleSystem.Type.STUN,false,null);
                 }
                 else if (((TrapCard) card).getName() == TrapCard.IgnoreDmg) {
@@ -702,7 +702,6 @@ public class DungeonA implements Screen {
                     }
                 });
                 damageCardFX.play();
-//                spawnParticleAtIcons(ParticleSystem.Type.DAMAGE_CARD,false,null);
                 for (Monster monster : monsters) {
                     float damage = ((DamageCard) card).activate(monster);
                     decreaseHPBar(monsters.indexOf(monster),damage , "Monster", ((DamageCard) card).getName(),monsterDamageLabelPadding += 60);

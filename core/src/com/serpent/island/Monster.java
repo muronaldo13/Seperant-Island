@@ -66,7 +66,7 @@ public class Monster extends Creatures{
                         if(!hero.isDead()) {
                             hero.setStun(true);
                             hero.setStunDuration(3);
-                            dungeon.getHeroIcons().get(i).setColor(Color.BLUE);
+                            dungeon.getHeroIcons().get(i).setColor(Color.YELLOW);
                         }
                     }
 //                    dungeon.spawnParticleAtIcons(ParticleSystem.Type.ENTANGLE,true,null);

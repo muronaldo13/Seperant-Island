@@ -2,6 +2,7 @@ package com.serpent.island;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -15,16 +16,14 @@ import com.badlogic.gdx.math.Vector2;
 public class ParticleSystem {
     public static final int MAX_PARTICLES = 128;
     public static final float PARTICLE_LIFETIME = 0.5f;
-    enum Type {NONE, DAMAGE_BUFF, HEAL, DEF_BUFF, COOLDOWN, ENTANGLE, LEECH, TAUNT, INVIS, REVIVE, STUN, SILENCED, GUST, FIRENOVA, EARTHQUAKE, TIDECALLING}
+    enum Type {NONE, DAMAGE_BUFF, HEAL, DEF_BUFF, COOLDOWN, ENTANGLE, LEECH, TAUNT, REVIVE, STUN, SILENCED, GUST, FIRENOVA, EARTHQUAKE, TIDECALLING}
 
     private Texture defBuffSprite;
     private Texture damageBuffSprite;
     private Texture entangleSprite;
     private Texture healSprite;
     private Texture cooldownSprite;
-    private Texture tauntSprite;
     private Texture leechSprite;
-    private Texture invisSprite;
     private Texture reviveSprite;
     private Texture stunSprite;
     private Texture silencedSprite;
@@ -34,14 +33,13 @@ public class ParticleSystem {
     private Texture tidecallingSprite;
 
     private TextureRegion[] defBuffFrame = new TextureRegion[10];
-    private TextureRegion[] cooldownFrame = new TextureRegion[10];
+    private TextureRegion[] cooldownFrame = new TextureRegion[13];
     private TextureRegion[] damageBuffFrame = new TextureRegion[10];
-    private TextureRegion[] entangleFrame = new TextureRegion[6];
+    private TextureRegion[] entangleFrame = new TextureRegion[18];
     private TextureRegion[] healFrame = new TextureRegion[10];
-    private TextureRegion[] tauntFrame = new TextureRegion[6];
-    private TextureRegion[] leechFrame = new TextureRegion[6];
-    private TextureRegion[] invisFrame = new TextureRegion[6];
-    private TextureRegion[] reviveFrame = new TextureRegion[6];
+    private TextureRegion[] tauntFrame = new TextureRegion[8];
+    private TextureRegion[] leechFrame = new TextureRegion[8];
+    private TextureRegion[] reviveFrame = new TextureRegion[15];
     private TextureRegion[] stunFrame = new TextureRegion[14];
     private TextureRegion[] silencedFrame = new TextureRegion[15];
     private TextureRegion[] gustFrame = new TextureRegion[15];
@@ -54,20 +52,16 @@ public class ParticleSystem {
     private Type[] type ;
 
     public void init(){
-
-        //TODO:insert image
         defBuffSprite = new Texture(Gdx.files.internal("particle_Spritesheet/defense_buff.png"));
         damageBuffSprite = new Texture(Gdx.files.internal("particle_Spritesheet/attack_buff.png"));
         healSprite = new Texture(Gdx.files.internal("particle_Spritesheet/heal.png"));
-        entangleSprite = new Texture(Gdx.files.internal("particle_Spritesheet/heal.png")); //TODO: To be changed
-        tauntSprite = new Texture(Gdx.files.internal("particle_Spritesheet/heal.png")); //TODO: To be changed
+        entangleSprite = new Texture(Gdx.files.internal("particle_Spritesheet/entangle.png"));
         defBuffSprite = new Texture(Gdx.files.internal("particle_Spritesheet/heal.png"));
-        leechSprite = new Texture(Gdx.files.internal("particle_Spritesheet/heal.png")); //TODO: TO be changed
-        invisSprite = new Texture(Gdx.files.internal("particle_Spritesheet/heal.png")); //TODO: To be REMOVED
-        reviveSprite = new Texture(Gdx.files.internal("particle_Spritesheet/heal.png")); //TODO: TO be changed
+        leechSprite = new Texture(Gdx.files.internal("particle_Spritesheet/leech.png"));
+        reviveSprite = new Texture(Gdx.files.internal("particle_Spritesheet/revive.png"));
         stunSprite = new Texture(Gdx.files.internal("particle_Spritesheet/stun.png"));
         silencedSprite = new Texture(Gdx.files.internal("particle_Spritesheet/silence.png"));
-        cooldownSprite = new Texture(Gdx.files.internal("particle_Spritesheet/heal.png")); //TODO: To be changed
+        cooldownSprite = new Texture(Gdx.files.internal("particle_Spritesheet/cooldown.png"));
         gustSprite = new Texture(Gdx.files.internal("particle_Spritesheet/gust_ss.png"));
         firenovaSprite = new Texture(Gdx.files.internal("particle_Spritesheet/gust_ss.png"));
         earthquakeSprite = new Texture(Gdx.files.internal("particle_Spritesheet/earthquake.png"));
@@ -95,21 +89,38 @@ public class ParticleSystem {
         damageBuffFrame[8] = new TextureRegion(damageBuffSprite,576, 192,192,192);
         damageBuffFrame[9] = new TextureRegion(damageBuffSprite,768, 192,192,192);
 
-        //TODO: change x, y , width, height
-        cooldownFrame[0] = new TextureRegion(cooldownSprite,2, 306,45,45);
-        cooldownFrame[1] = new TextureRegion(cooldownSprite,52, 306,45,45);
-        cooldownFrame[2] = new TextureRegion(cooldownSprite,102, 306,45,45);
-        cooldownFrame[3] = new TextureRegion(cooldownSprite,152, 306,45,45);
-        cooldownFrame[4] = new TextureRegion(cooldownSprite,202, 306,45,45);
-        cooldownFrame[5] = new TextureRegion(cooldownSprite,252, 306,45,45);
+        cooldownFrame[0] = new TextureRegion(cooldownSprite,0, 0,192,192);
+        cooldownFrame[1] = new TextureRegion(cooldownSprite,192, 0,192,192);
+        cooldownFrame[2] = new TextureRegion(cooldownSprite,384, 0,192,192);
+        cooldownFrame[3] = new TextureRegion(cooldownSprite,576, 0,192,192);
+        cooldownFrame[4] = new TextureRegion(cooldownSprite,768, 0,192,192);
+        cooldownFrame[5] = new TextureRegion(cooldownSprite,0, 192,192,192);
+        cooldownFrame[6] = new TextureRegion(cooldownSprite,192, 192,192,192);
+        cooldownFrame[7] = new TextureRegion(cooldownSprite,384, 192,192,192);
+        cooldownFrame[8] = new TextureRegion(cooldownSprite,576, 192,192,192);
+        cooldownFrame[9] = new TextureRegion(cooldownSprite,768, 192,192,192);
+        cooldownFrame[10] = new TextureRegion(cooldownSprite,0, 384,192,192);
+        cooldownFrame[11] = new TextureRegion(cooldownSprite,192, 384,192,192);
+        cooldownFrame[12] = new TextureRegion(cooldownSprite,384, 384,192,192);
 
-        //TODO: change x, y , width, height
-        entangleFrame[0] = new TextureRegion(entangleSprite,2, 306,45,45);
-        entangleFrame[1] = new TextureRegion(entangleSprite,52, 306,45,45);
-        entangleFrame[2] = new TextureRegion(entangleSprite,102, 306,45,45);
-        entangleFrame[3] = new TextureRegion(entangleSprite,152, 306,45,45);
-        entangleFrame[4] = new TextureRegion(entangleSprite,202, 306,45,45);
-        entangleFrame[5] = new TextureRegion(entangleSprite,252, 306,45,45);
+        entangleFrame[0] = new TextureRegion(entangleSprite,0, 0,192,192);
+        entangleFrame[1] = new TextureRegion(entangleSprite,192, 0,192,192);
+        entangleFrame[2] = new TextureRegion(entangleSprite,384, 0,192,192);
+        entangleFrame[3] = new TextureRegion(entangleSprite,576, 0,192,192);
+        entangleFrame[4] = new TextureRegion(entangleSprite,768, 0,192,192);
+        entangleFrame[5] = new TextureRegion(entangleSprite,0, 192,192,192);
+        entangleFrame[6] = new TextureRegion(entangleSprite,192, 192,192,192);
+        entangleFrame[7] = new TextureRegion(entangleSprite,384, 192,192,192);
+        entangleFrame[8] = new TextureRegion(entangleSprite,576, 192,192,192);
+        entangleFrame[9] = new TextureRegion(entangleSprite,768, 192,192,192);
+        entangleFrame[10] = new TextureRegion(entangleSprite,0, 384,192,192);
+        entangleFrame[11] = new TextureRegion(entangleSprite,192, 384,192,192);
+        entangleFrame[12] = new TextureRegion(entangleSprite,384, 384,192,192);
+        entangleFrame[13] = new TextureRegion(entangleSprite,576, 384,192,192);
+        entangleFrame[14] = new TextureRegion(entangleSprite,768, 384,192,192);
+        entangleFrame[15] = new TextureRegion(entangleSprite,0, 576,192,192);
+        entangleFrame[16] = new TextureRegion(entangleSprite,192, 576,192,192);
+        entangleFrame[17] = new TextureRegion(entangleSprite,384, 576,192,192);
 
         healFrame[0] = new TextureRegion(healSprite,0, 0,192,192);
         healFrame[1] = new TextureRegion(healSprite,192, 0,192,192);
@@ -122,37 +133,39 @@ public class ParticleSystem {
         healFrame[8] = new TextureRegion(healSprite,576, 192,192,192);
         healFrame[9] = new TextureRegion(healSprite,768, 192,192,192);
 
-        //TODO: change x, y , width, height
-        tauntFrame[0] = new TextureRegion(tauntSprite,2, 306,45,45);
-        tauntFrame[1] = new TextureRegion(tauntSprite,52, 306,45,45);
-        tauntFrame[2] = new TextureRegion(tauntSprite,102, 306,45,45);
-        tauntFrame[3] = new TextureRegion(tauntSprite,152, 306,45,45);
-        tauntFrame[4] = new TextureRegion(tauntSprite,202, 306,45,45);
-        tauntFrame[5] = new TextureRegion(tauntSprite,252, 306,45,45);
+        tauntFrame[0] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_1.bmp")));
+        tauntFrame[1] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_2.bmp")));
+        tauntFrame[2] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_3.bmp")));
+        tauntFrame[3] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_4.bmp")));
+        tauntFrame[4] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_5.bmp")));
+        tauntFrame[5] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_6.bmp")));
+        tauntFrame[6] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_7.bmp")));
+        tauntFrame[7] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_8.bmp")));
 
-        //TODO: change x, y , width, height
-        leechFrame[0] = new TextureRegion(leechSprite,2, 306,45,45);
-        leechFrame[1] = new TextureRegion(leechSprite,52, 306,45,45);
-        leechFrame[2] = new TextureRegion(leechSprite,102, 306,45,45);
-        leechFrame[3] = new TextureRegion(leechSprite,152, 306,45,45);
-        leechFrame[4] = new TextureRegion(leechSprite,202, 306,45,45);
-        leechFrame[5] = new TextureRegion(leechSprite,252, 306,45,45);
+        leechFrame[0] = new TextureRegion(leechSprite,0, 0,192,192);
+        leechFrame[1] = new TextureRegion(leechSprite,192, 0,192,192);
+        leechFrame[2] = new TextureRegion(leechSprite,384, 0,192,192);
+        leechFrame[3] = new TextureRegion(leechSprite,576, 0,192,192);
+        leechFrame[4] = new TextureRegion(leechSprite,768, 0,192,192);
+        leechFrame[5] = new TextureRegion(leechSprite,0, 192,192,192);
+        leechFrame[6] = new TextureRegion(leechSprite,192, 192,192,192);
+        leechFrame[7] = new TextureRegion(leechSprite,384, 192,192,192);
 
-        //TODO: TO BE REMOVED
-        invisFrame[0] = new TextureRegion(invisSprite,2, 306,45,45);
-        invisFrame[1] = new TextureRegion(invisSprite,52, 306,45,45);
-        invisFrame[2] = new TextureRegion(invisSprite,102, 306,45,45);
-        invisFrame[3] = new TextureRegion(invisSprite,152, 306,45,45);
-        invisFrame[4] = new TextureRegion(invisSprite,202, 306,45,45);
-        invisFrame[5] = new TextureRegion(invisSprite,252, 306,45,45);
-
-        //TODO: change x, y , width, height
-        reviveFrame[0] = new TextureRegion(reviveSprite,2, 306,45,45);
-        reviveFrame[1] = new TextureRegion(reviveSprite,52, 306,45,45);
-        reviveFrame[2] = new TextureRegion(reviveSprite,102, 306,45,45);
-        reviveFrame[3] = new TextureRegion(reviveSprite,152, 306,45,45);
-        reviveFrame[4] = new TextureRegion(reviveSprite,202, 306,45,45);
-        reviveFrame[5] = new TextureRegion(reviveSprite,252, 306,45,45);
+        reviveFrame[0] = new TextureRegion(reviveSprite,0, 0,192,192);
+        reviveFrame[1] = new TextureRegion(reviveSprite,192, 0,192,192);
+        reviveFrame[2] = new TextureRegion(reviveSprite,384, 0,192,192);
+        reviveFrame[3] = new TextureRegion(reviveSprite,576, 0,192,192);
+        reviveFrame[4] = new TextureRegion(reviveSprite,768, 0,192,192);
+        reviveFrame[5] = new TextureRegion(reviveSprite,0, 192,192,192);
+        reviveFrame[6] = new TextureRegion(reviveSprite,192, 192,192,192);
+        reviveFrame[7] = new TextureRegion(reviveSprite,384, 192,192,192);
+        reviveFrame[8] = new TextureRegion(reviveSprite,576, 192,192,192);
+        reviveFrame[9] = new TextureRegion(reviveSprite,768, 192,192,192);
+        reviveFrame[10] = new TextureRegion(reviveSprite,0, 384,192,192);
+        reviveFrame[11] = new TextureRegion(reviveSprite,192, 384,192,192);
+        reviveFrame[12] = new TextureRegion(reviveSprite,384, 384,192,192);
+        reviveFrame[13] = new TextureRegion(reviveSprite,576, 384,192,192);
+        reviveFrame[14] = new TextureRegion(reviveSprite,768, 384,192,192);
 
         stunFrame[0] = new TextureRegion(stunSprite,0, 0,192,192);
         stunFrame[1] = new TextureRegion(stunSprite,192, 0,192,192);
@@ -292,7 +305,6 @@ public class ParticleSystem {
     }
 
     public void render(SpriteBatch batch){
-        batch.begin();
         for(int i = 0 ; i< MAX_PARTICLES; i++){
             if(type[i] == Type.NONE)
                 continue;
@@ -329,9 +341,6 @@ public class ParticleSystem {
                 } else if(type[i] == Type.HEAL){
                     frameLength = healFrame.length;
                     texture = healFrame;
-                } else if(type[i] == Type.INVIS){
-                    frameLength = invisFrame.length;
-                    texture = invisFrame;
                 }else if(type[i] == Type.LEECH){
                     frameLength = leechFrame.length;
                     texture = leechFrame;
@@ -350,12 +359,12 @@ public class ParticleSystem {
                         * frameLength);
 
                 if(frameNo > -1 && frameNo < frameLength){
-                    Gdx.app.log("Draw", "Drawing,j");
-                    batch.draw(texture[texture.length -frameNo-1], position[i].x,position[i].y);
+                    batch.begin();
+                    batch.draw(texture[texture.length -frameNo-1], position[i].x, position[i].y);
+                    batch.end();
                 }
             }
         }
-        batch.end();
     }
 
     public Vector2[] getPosition() {
