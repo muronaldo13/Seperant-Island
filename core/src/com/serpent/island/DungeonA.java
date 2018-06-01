@@ -39,7 +39,6 @@ import java.util.ArrayList;
 public class DungeonA implements Screen {
     private Game game;
     private SpriteBatch batch;
-    private SpriteBatch particleBatch;
     private Sprite background;
     private Stage dungeonA_Battle;
     private Skin guiSkin;
@@ -65,7 +64,6 @@ public class DungeonA implements Screen {
     private Dialog cardInfoDialog;
     private ParticleSystem particleSystem;
 
-
     public DungeonA(Game game) {
         // variable initialisation
         this.game = game;
@@ -83,7 +81,6 @@ public class DungeonA implements Screen {
         monsterHPBars = new ArrayList<ProgressBar>();
         monsterDamageLabelPadding = -60;
         monsterHealingLabelPadding = -60;
-        particleBatch = new SpriteBatch();
         actBuffCardCount = 0;
         actDamageCardCount = 0;
         actTrapCardCount = 0;
@@ -98,9 +95,10 @@ public class DungeonA implements Screen {
 
         // Set up the table for displaying cards
         cardTableA = new Table();
+        cardTableA.setWidth(Gdx.graphics.getWidth());
         cardTableA.align(Align.left | Align.top);
         cardTableA.setPosition(0, Gdx.graphics.getHeight()/2-120);
-        cardTableA.setWidth(Gdx.graphics.getWidth());
+
         cardTableB = new Table();
         cardTableB.setWidth(Gdx.graphics.getWidth());
         cardTableB.align(Align.left | Align.top);
@@ -314,7 +312,6 @@ public class DungeonA implements Screen {
 
         // Add heros to stage
         heroTable = new Table();
-        heroTable.setPosition(0, Gdx.graphics.getHeight()/2 - 45);
         heroTable.setHeight(Gdx.graphics.getWidth()/4 - 20);
         heroTable.setWidth(Gdx.graphics.getWidth());
         heroTable.align(Align.center);
@@ -322,6 +319,7 @@ public class DungeonA implements Screen {
         for (Button heroIcon : heroIcons) {
             heroTable.add(heroIcon).size(heroTable.getHeight(), heroTable.getHeight()).padRight(20);
         }
+        heroTable.setPosition(0, Gdx.graphics.getHeight()/2 - 45);
         dungeonA_Battle.addActor(heroTable);
 
         // Add heros hp bar to stage
@@ -402,7 +400,6 @@ public class DungeonA implements Screen {
             cardTableA.add(cardIcon).width(cardTableA.getWidth() / 5).height(cardTableA.getWidth() / 3);
             cardTableA.validate();
             final Vector2 location = cardIcon.localToParentCoordinates(new Vector2(cardTableA.getX(),cardTableA.getY()));
-        //TODO: fix cardIcon ( or cardTable) y axis to call here instead of the fix number -360
             cardIcon.addAction(Actions.moveTo(location.x+1200,-360));
             if(singleAdd)
                 cardIcon.addAction(Actions.moveTo(location.x,-360,0.8f));
@@ -646,7 +643,7 @@ public class DungeonA implements Screen {
                 else if (((TrapCard) card).getName() == TrapCard.Stun) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/stoneGaze_FX.mp3"));
                     monsterIcons.get(0).setColor(Color.YELLOW);
-                    spawnParticleAtIcons(ParticleSystem.Type.STUN,false,null);
+//                    spawnParticleAtIcons(ParticleSystem.Type.STUN,false,null);
                 }
                 else if (((TrapCard) card).getName() == TrapCard.IgnoreDmg) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/barrier_FX.mp3"));
@@ -943,31 +940,34 @@ public class DungeonA implements Screen {
     }
 
     public void spawnParticleAtIcons(ParticleSystem.Type type, boolean heroes, Button oneHero) {
+
+        //TODO: fix Y axis
         if (heroes) {
             if(oneHero == null){
                 for (int i = 0 ; i< heroIcons.size();i++) {
                     if(!party.get(i).isDead()) {
                         int x = (int) heroIcons.get(i).getX();
-                        int y = (int) heroTable.getY();
+                        int y = (int) heroIcons.get(i).getY();
                         int index = particleSystem.spawn(type);
                         particleSystem.getPosition()[index].set(x, y);
-
                     }
                 }
             }else{
                 int x = (int) oneHero.getX();
-                int y = (int) heroTable.getY();
+                int y = (int) oneHero.getY();
                 int i = particleSystem.spawn(type);
                 particleSystem.getPosition()[i].set(x, y);
             }
         } else {
             for (Button monsterIcon : monsterIcons) {
-                int x = (int) monsterIcon.getX() + 130;
-                int y = (int)monsterTable.getY() - 300;
+                int x = (int) monsterIcon.getX();
+                int y = (int) monsterIcon.getY();
                 int i = particleSystem.spawn(type);
                 particleSystem.getPosition()[i].set(x, y);
             }
         }
+//        particleSystem.update(deltaTime);
+//        particleSystem.render(batch);
     }
     /**
      * Determines whether all heros are dead or not
@@ -1002,12 +1002,13 @@ public class DungeonA implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
         background.draw(batch);
+        float deltaTime = Gdx.graphics.getDeltaTime();
+        particleSystem.update(deltaTime);
+        //TODO: fix showing at the front level
+        particleSystem.render(batch);
         batch.end();
         dungeonA_Battle.act();
         dungeonA_Battle.draw();
-        float deltaTime = Gdx.graphics.getDeltaTime();
-        particleSystem.update(deltaTime);
-        particleSystem.render(particleBatch);
     }
 
     @Override
@@ -1036,7 +1037,6 @@ public class DungeonA implements Screen {
 
     @Override
     public void dispose() {
-        particleBatch.dispose();
         batch.dispose();
         guiSkin.dispose();
         bgm.dispose();

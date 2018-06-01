@@ -272,8 +272,6 @@ public class ParticleSystem {
         defBuffSprite.dispose();
     }
 
-
-
     public int spawn(Type t){
         if(t== null) return -1;
         int i = 1;
@@ -361,9 +359,7 @@ public class ParticleSystem {
                         * frameLength);
 
                 if(frameNo > -1 && frameNo < frameLength){
-                    batch.begin();
                     batch.draw(texture[texture.length -frameNo-1], position[i].x, position[i].y);
-                    batch.end();
                 }
             }
         }
