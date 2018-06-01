@@ -400,72 +400,113 @@ public class ParticleSystem {
             else{
                 int frameLength = 0;
                 TextureRegion[] texture = null;
+                int width = 0;
+                int height = 0;
                 if(type[i] == Type.DAMAGE_BUFF){
                     frameLength = damageBuffFrame.length;
                     texture = damageBuffFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 } else if(type[i] == Type.DEF_BUFF){
                     frameLength = defBuffFrame.length;
                     texture = defBuffFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 } else if(type[i] == Type.ENTANGLE){
                     frameLength = entangleFrame.length;
                     texture = entangleFrame;
+                    width = (int) (texture[0].getRegionWidth() *1.5);
+                    height = (int) (texture[0].getRegionHeight()*1.5);
                 } else if(type[i] == Type.COOLDOWN){
                     frameLength = cooldownFrame.length;
                     texture = cooldownFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 }else if(type[i] == Type.TAUNT){
                     frameLength = tauntFrame.length;
                     texture = tauntFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 } else if(type[i] == Type.GUST){
                     frameLength = gustFrame.length;
                     texture = gustFrame;
+                    width = texture[0].getRegionWidth() *2;
+                    height = texture[0].getRegionHeight()*2;
                 } else if(type[i] == Type.FIRENOVA){
                     frameLength = firenovaFrame.length;
                     texture = firenovaFrame;
+                    width = texture[0].getRegionWidth()*2;
+                    height = texture[0].getRegionHeight()*2;
                 } else if(type[i] == Type.EARTHQUAKE){
                     frameLength = earthquakeFrame.length;
                     texture = earthquakeFrame;
+                    width = texture[0].getRegionWidth()*2;
+                    height = texture[0].getRegionHeight()*2;
                 } else if(type[i] == Type.TIDECALLING){
                     frameLength = tidecallingFrame.length;
                     texture = tidecallingFrame;
+                    width = texture[0].getRegionWidth()*2;
+                    height = texture[0].getRegionHeight()*2;
                 } else if(type[i] == Type.HEAL){
                     frameLength = healFrame.length;
                     texture = healFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 }else if(type[i] == Type.LEECH){
                     frameLength = leechFrame.length;
                     texture = leechFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 }else if(type[i] == Type.REVIVE){
                     frameLength = reviveFrame.length;
                     texture = reviveFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 }else if(type[i] == Type.STUN){
                     frameLength = stunFrame.length;
                     texture = stunFrame;
+                    width = texture[0].getRegionWidth()*2;
+                    height = texture[0].getRegionHeight()*2;
+
                 }else if(type[i] == Type.SILENCED){
                     frameLength = silencedFrame.length;
                     texture = silencedFrame;
+                    width = texture[0].getRegionWidth()*2;
+                    height = texture[0].getRegionHeight()*2;
                 }
                 else if (type[i] == Type.BARRIER) {
                     frameLength = barrierFrame.length;
                     texture = barrierFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 }
                 else if (type[i] == Type.REFLECTION) {
                     frameLength = reflectDmgFrame.length;
                     texture = reflectDmgFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 }
                 else if (type[i] == Type.HEROATTACK) {
                     frameLength = heroAttackFrame.length;
                     texture = heroAttackFrame;
+                    width = texture[0].getRegionWidth()*2;
+                    height = texture[0].getRegionHeight()*2;
+
                 }
                 else if (type[i] == Type.TIGERATTACK) {
                     frameLength = tigerAttackFrame.length;
                     texture = tigerAttackFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 }
 
                 int frameNo = (int) (lifeTime[i] / (PARTICLE_LIFETIME)
                         * frameLength);
 
                 if(frameNo > -1 && frameNo < frameLength){
+
                     batch.begin();
-                    batch.draw(texture[texture.length -frameNo-1], position[i].x, position[i].y);
+                    batch.draw(texture[texture.length -frameNo-1], position[i].x, position[i].y,width,height);
                     batch.end();
                 }
             }

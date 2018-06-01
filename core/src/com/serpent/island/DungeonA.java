@@ -148,6 +148,11 @@ public class DungeonA implements Screen {
     private void makeCharacterDialog(final int characterIndex){
         // Display skill activation dialog
         Dialog dialog;
+        // Set up dialog title area
+        Label titleLabel = new Label("Character Detail", guiSkin);
+        titleLabel.setFontScale(1.3f);
+        titleLabel.setSize(25,25);
+        Label characterStatsLabel;
         if (characterIndex != -1) {
             dialog = new Dialog("", guiSkin, "default") {
                 public void result(Object obj) {
@@ -168,31 +173,21 @@ public class DungeonA implements Screen {
                     }
                 }
             };
-        }
-        else{
-            dialog = new Dialog("", guiSkin, "default");
-        }
-        // Set up dialog title area
-        Label titleLabel = new Label("Character Detail", guiSkin);
-        titleLabel.setFontScale(1.3f);
-        titleLabel.setSize(25,25);
-        dialog.getTitleTable().add(titleLabel);
-        Label characterStatsLabel;
-        if(characterIndex != -1) {
             // Set up dialog content area
             characterStatsLabel = new Label(party.get(characterIndex).getStats(), guiSkin);
             characterStatsLabel.setSize(350,250);
             // Skill activation button will only show when skill is activatable
             if (party.get(characterIndex).getSkill().getCurrentCooldown() == 0
-                    && party.get(characterIndex).getCurrentHP() > 0f) {
+                    && !party.get(characterIndex).isDead() && !party.get(characterIndex).isStun()) {
                 dialog.button("Activate Skill", true);
             }
         }
-        else {
+        else{
+            dialog = new Dialog("", guiSkin, "default");
             characterStatsLabel = new Label(monsters.get(0).getStats(), guiSkin);
-            characterStatsLabel.setSize(350,270);
+            characterStatsLabel.setSize(350,350);
         }
-
+        dialog.getTitleTable().add(titleLabel);
         characterStatsLabel.setFontScale(1.2f);
         characterStatsLabel.setWrap(true);
         dialog.button("Cancel", false);
@@ -209,8 +204,8 @@ public class DungeonA implements Screen {
      */
     public void buildEnemy() {
         Monster tigerA = new Monster("Tiger A", 2000, 100f, 50f, Element.EARTH);
-        tigerA.addSkill(new Skill(Skill.LEECH, "Abosrb 100 health from hero/s", 3));
-        tigerA.addSkill(new Skill(Skill.ENTANGLE, "Stuns hero/s", 2));
+        tigerA.addSkill(new Skill(Skill.LEECH, "Absorb 100 health from hero/s", 3));
+        tigerA.addSkill(new Skill(Skill.ENTANGLE, "Stuns hero/s for 3 rounds", 6));
         monsters.add(tigerA);
         monsterIcons.add(new Button(new TextureRegionDrawable(new TextureRegion(
                 new Texture(Gdx.files.internal("monster_Imgs/tiger.png"))))));
@@ -950,9 +945,10 @@ public class DungeonA implements Screen {
             if(oneHero == null){
                 for (int i = 0 ; i< heroIcons.size();i++) {
                     if(!party.get(i).isDead()) {
-                        int x = (int) heroIcons.get(i).getX();
-                        int index = particleSystem.spawn(type);
-                        particleSystem.getPosition()[index].set(x, y);
+                            int x = (int) heroIcons.get(i).getX();
+                            int index = particleSystem.spawn(type);
+                            particleSystem.getPosition()[index].set(x, y);
+
                     }
                 }
             }else{

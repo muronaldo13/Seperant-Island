@@ -63,13 +63,14 @@ public class Monster extends Creatures{
                 if (skill.getName().equals(Skill.ENTANGLE)) {
                     for (int i = 0 ;i <dungeon.party.size();i++) {
                         Hero hero = dungeon.party.get(i);
-                        if(!hero.isDead()) {
+                        if(!hero.isDead() && !hero.isInvis()) {
                             hero.setStun(true);
                             hero.setStunDuration(3);
                             dungeon.getHeroIcons().get(i).setColor(Color.YELLOW);
+                            dungeon.spawnParticleAtIcons(ParticleSystem.Type.ENTANGLE,true,dungeon.getHeroIcons().get(i));
                         }
                     }
-                    dungeon.spawnParticleAtIcons(ParticleSystem.Type.ENTANGLE,true,null);
+
                 }
                 else if (!DungeonA.ReflectDamage) {
                     if (tauntingSource != null) {
@@ -85,17 +86,17 @@ public class Monster extends Creatures{
                     } else {
                         for (int i = 0; i < dungeon.party.size(); i++) {
                             Hero hero = dungeon.party.get(i);
-                            if (!hero.isDead()) {
+                            if (!hero.isDead() && !hero.isInvis()) {
                                 if (skill.getName().equals(Skill.LEECH)) {
                                     hero.takeDamage(100f);
                                     dungeon.decreaseHPBar(dungeon.party.indexOf(hero), 100f, "Hero", Skill.LEECH,60);
                                     healAmount(100f);
                                     dungeon.increaseHPBar(dungeon.monsters.indexOf(this), 100f, "Monster",dungeon.monsterHealingLabelPadding+=60);
-
+                                    dungeon.spawnParticleAtIcons(ParticleSystem.Type.LEECH,true,dungeon.getHeroIcons().get(i));
                                 }
                             }
                         }
-                        dungeon.spawnParticleAtIcons(ParticleSystem.Type.LEECH,true,null);
+
                     }
                 }
                 else {
@@ -118,7 +119,7 @@ public class Monster extends Creatures{
         String stats = "Name: " + name + "\nElement: "+ element.name() +"\nHP: " + currentHP +"/" + maxHP + "\nATK Point: " + currentDamage
                 + "\nDEF Point: " + currentDef;
         for (Skill skill : skillList) {
-            stats += "\nSkill: " + skill.getName() + "\nRemaining CoolDown: " + skill.getCurrentCooldown();
+            stats += "\nSkill: " + skill.getName() + "\nRemaining CoolDown: " + skill.getCurrentCooldown() + "\n"+skill.getDescription();
         }
         return stats;
     }

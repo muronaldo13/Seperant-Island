@@ -79,9 +79,9 @@ public class Hero extends Creatures {
                             hero.setCurrentHP(newHP);
                             dungeon.getHeroIcons().get(i).setColor(Color.WHITE);
                             dungeon.increaseHPBar(dungeon.party.indexOf(hero), newHP, "Hero",0);
+                            dungeon.spawnParticleAtIcons(ParticleSystem.Type.REVIVE,true,dungeon.getHeroIcons().get(dungeon.party.indexOf(hero)));
                         }
                     }
-                    dungeon.spawnParticleAtIcons(ParticleSystem.Type.REVIVE,true,dungeon.getHeroIcons().get(dungeon.party.indexOf(hero)));
                 }
 
                 skillEffect = "Reviving dead allies!";
