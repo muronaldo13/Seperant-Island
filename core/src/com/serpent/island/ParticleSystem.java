@@ -1,6 +1,7 @@
 package com.serpent.island;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -56,14 +57,14 @@ public class ParticleSystem {
         damageBuffSprite = new Texture(Gdx.files.internal("particle_Spritesheet/attack_buff.png"));
         healSprite = new Texture(Gdx.files.internal("particle_Spritesheet/heal.png"));
         entangleSprite = new Texture(Gdx.files.internal("particle_Spritesheet/entangle.png"));
-        defBuffSprite = new Texture(Gdx.files.internal("particle_Spritesheet/heal.png"));
+        defBuffSprite = new Texture(Gdx.files.internal("particle_Spritesheet/defense_buff.png"));
         leechSprite = new Texture(Gdx.files.internal("particle_Spritesheet/leech.png"));
         reviveSprite = new Texture(Gdx.files.internal("particle_Spritesheet/revive.png"));
         stunSprite = new Texture(Gdx.files.internal("particle_Spritesheet/stun.png"));
         silencedSprite = new Texture(Gdx.files.internal("particle_Spritesheet/silence.png"));
         cooldownSprite = new Texture(Gdx.files.internal("particle_Spritesheet/cooldown.png"));
         gustSprite = new Texture(Gdx.files.internal("particle_Spritesheet/gust_ss.png"));
-        firenovaSprite = new Texture(Gdx.files.internal("particle_Spritesheet/gust_ss.png"));
+        firenovaSprite = new Texture(Gdx.files.internal("particle_Spritesheet/firenova.png"));
         earthquakeSprite = new Texture(Gdx.files.internal("particle_Spritesheet/earthquake.png"));
         tidecallingSprite = new Texture(Gdx.files.internal("particle_Spritesheet/tide_calling.png"));
 
@@ -359,7 +360,9 @@ public class ParticleSystem {
                         * frameLength);
 
                 if(frameNo > -1 && frameNo < frameLength){
+                    batch.begin();
                     batch.draw(texture[texture.length -frameNo-1], position[i].x, position[i].y);
+                    batch.end();
                 }
             }
         }
