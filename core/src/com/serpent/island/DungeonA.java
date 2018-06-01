@@ -626,7 +626,6 @@ public class DungeonA implements Screen {
                 handCard.remove(index);
                 rebuiltCardTable(index);
             }
-            // Notify player about activation failure
             else {
                 notifyCardActivationFailure("Buff");
             }
