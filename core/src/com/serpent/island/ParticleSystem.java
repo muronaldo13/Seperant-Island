@@ -359,9 +359,7 @@ public class ParticleSystem {
                         * frameLength);
 
                 if(frameNo > -1 && frameNo < frameLength){
-                    batch.begin();
                     batch.draw(texture[texture.length -frameNo-1], position[i].x, position[i].y);
-                    batch.end();
                 }
             }
         }

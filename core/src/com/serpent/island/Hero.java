@@ -68,8 +68,8 @@ public class Hero extends Creatures {
                 for (Monster monster : dungeon.monsters) {
                     monster.setTauntingSource(this);
                 }
-//                dungeon.spawnParticleAtIcons(ParticleSystem.Type.INVIS,true,dungeon.getHeroIcons().get(dungeon.party.indexOf(this)));
                 skillEffect = "Taunting enemies!";
+                dungeon.spawnParticleAtIcons(ParticleSystem.Type.TAUNT,true,dungeon.getHeroIcons().get(dungeon.party.indexOf(this)));
             } else if (skill.getName().equals(Skill.REVIVE)) {
                 for (int i = 0; i < dungeon.party.size(); i++) {
                     Hero hero = dungeon.party.get(i);
@@ -81,14 +81,14 @@ public class Hero extends Creatures {
                             dungeon.increaseHPBar(dungeon.party.indexOf(hero), newHP, "Hero",0);
                         }
                     }
+                    dungeon.spawnParticleAtIcons(ParticleSystem.Type.REVIVE,true,dungeon.getHeroIcons().get(dungeon.party.indexOf(hero)));
                 }
-//                dungeon.spawnParticleAtIcons(ParticleSystem.Type.REVIVE,true);
+
                 skillEffect = "Reviving dead allies!";
             } else if (skill.getName().equals(Skill.INVIS)) {
                 dungeon.getHeroIcons().get(dungeon.party.indexOf(this)).setColor(Color.LIGHT_GRAY);
                 this.setInvis(true);
                 skillEffect = "Becoming invisible!";
-//                dungeon.spawnParticleAtIcons(ParticleSystem.Type.INVIS,true,dungeon.getHeroIcons().get(dungeon.party.indexOf(this)));
             }
 
             skill.resetCooldown();

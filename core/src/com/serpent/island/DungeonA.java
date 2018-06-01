@@ -593,17 +593,17 @@ public class DungeonA implements Screen {
                 else if (card.getCardName() == BuffCard.DAMAGE) {
                     displayBuffCardEffectLabel(buffAmounts,"damage");
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/attackBuff_FX.wav"));
-//                    spawnParticleAtIcons(ParticleSystem.Type.DAMAGE_BUFF,true, null);
+                    spawnParticleAtIcons(ParticleSystem.Type.DAMAGE_BUFF,true, null);
                 }
                 else if (card.getCardName() == BuffCard.DEFENSE) {
                     displayBuffCardEffectLabel(buffAmounts,"def");
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/defenceBuff_FX.wav"));
-//                    spawnParticleAtIcons(ParticleSystem.Type.DEF_BUFF,true,null);
+                    spawnParticleAtIcons(ParticleSystem.Type.DEF_BUFF,true,null);
                 }
                 else {
                     displayBuffCardEffectLabel(buffAmounts,"cd");
                     buffCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/reduceCD_FX.wav"));
-//                    spawnParticleAtIcons(ParticleSystem.Type.COOLDOWN,true,null);
+                    spawnParticleAtIcons(ParticleSystem.Type.COOLDOWN,true,null);
                 }
                 buffCardFX.setOnCompletionListener(new Music.OnCompletionListener()
                 {
@@ -940,7 +940,8 @@ public class DungeonA implements Screen {
     }
 
     public void spawnParticleAtIcons(ParticleSystem.Type type, boolean heroes, Button oneHero) {
-        float deltaTime = Gdx.graphics.getDeltaTime();
+
+        //TODO: fix Y axis
         if (heroes) {
             if(oneHero == null){
                 for (int i = 0 ; i< heroIcons.size();i++) {
@@ -965,8 +966,8 @@ public class DungeonA implements Screen {
                 particleSystem.getPosition()[i].set(x, y);
             }
         }
-        particleSystem.update(deltaTime);
-        particleSystem.render(batch);
+//        particleSystem.update(deltaTime);
+//        particleSystem.render(batch);
     }
     /**
      * Determines whether all heros are dead or not
@@ -997,9 +998,14 @@ public class DungeonA implements Screen {
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
         background.draw(batch);
+        float deltaTime = Gdx.graphics.getDeltaTime();
+        particleSystem.update(deltaTime);
+        //TODO: fix showing at the front level
+        particleSystem.render(batch);
         batch.end();
         dungeonA_Battle.act();
         dungeonA_Battle.draw();
