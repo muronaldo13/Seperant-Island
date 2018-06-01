@@ -648,9 +648,11 @@ public class DungeonA implements Screen {
                 }
                 else if (((TrapCard) card).getName() == TrapCard.IgnoreDmg) {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/barrier_FX.mp3"));
+                    spawnParticleAtIcons(ParticleSystem.Type.BARRIER,true,null);
                 }
                 else {
                     trapCardFX = Gdx.audio.newMusic(Gdx.files.internal("sound_effects/reflectDmg_FX.mp3"));
+                    spawnParticleAtIcons(ParticleSystem.Type.REFLECTION,true,null);
                 }
                 trapCardFX.setOnCompletionListener(new Music.OnCompletionListener()
                 {
@@ -785,6 +787,7 @@ public class DungeonA implements Screen {
                         }
                     });
                     heroAttackFX.play();
+                    spawnParticleAtIcons(ParticleSystem.Type.HEROATTACK,false,null);
                 }
             }
         }
@@ -824,6 +827,7 @@ public class DungeonA implements Screen {
                 if (!ReflectDamage) {
                     // Monster attacks the selected target hero
                     decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monster, "Attack"), "Hero", null,0);
+                    spawnParticleAtIcons(ParticleSystem.Type.TIGERATTACK,true,heroIcons.get(targetIndex));
 
                 }
                 // Monster attack got reflected

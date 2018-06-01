@@ -17,36 +17,56 @@ import com.badlogic.gdx.math.Vector2;
 public class ParticleSystem {
     public static final int MAX_PARTICLES = 128;
     public static final float PARTICLE_LIFETIME = 0.5f;
-    enum Type {NONE, DAMAGE_BUFF, HEAL, DEF_BUFF, COOLDOWN, ENTANGLE, LEECH, TAUNT, REVIVE, STUN, SILENCED, GUST, FIRENOVA, EARTHQUAKE, TIDECALLING}
+    enum Type {NONE, DAMAGE_BUFF, HEAL, DEF_BUFF, COOLDOWN, ENTANGLE, LEECH, TAUNT, REVIVE, STUN, SILENCED, GUST, FIRENOVA, EARTHQUAKE, TIDECALLING, HEROATTACK, TIGERATTACK, BARRIER, REFLECTION}
 
+    //Buff cards
     private Texture defBuffSprite;
     private Texture damageBuffSprite;
-    private Texture entangleSprite;
     private Texture healSprite;
     private Texture cooldownSprite;
-    private Texture leechSprite;
-    private Texture reviveSprite;
+
+    private TextureRegion[] defBuffFrame = new TextureRegion[10];
+    private TextureRegion[] damageBuffFrame = new TextureRegion[10];
+    private TextureRegion[] healFrame = new TextureRegion[10];
+    private TextureRegion[] cooldownFrame = new TextureRegion[13];
+    // Trap cards
     private Texture stunSprite;
     private Texture silencedSprite;
+    private Texture reflectDmgSprite;
+    private Texture barrierSprite;
+
+    private TextureRegion[] stunFrame = new TextureRegion[14];
+    private TextureRegion[] silencedFrame = new TextureRegion[15];
+    private TextureRegion[] reflectDmgFrame = new TextureRegion[12];
+    private TextureRegion[] barrierFrame = new TextureRegion[16];
+    // Damage cards
     private Texture gustSprite;
     private Texture firenovaSprite;
     private Texture earthquakeSprite;
     private Texture tidecallingSprite;
 
-    private TextureRegion[] defBuffFrame = new TextureRegion[10];
-    private TextureRegion[] cooldownFrame = new TextureRegion[13];
-    private TextureRegion[] damageBuffFrame = new TextureRegion[10];
-    private TextureRegion[] entangleFrame = new TextureRegion[18];
-    private TextureRegion[] healFrame = new TextureRegion[10];
-    private TextureRegion[] tauntFrame = new TextureRegion[8];
-    private TextureRegion[] leechFrame = new TextureRegion[8];
-    private TextureRegion[] reviveFrame = new TextureRegion[15];
-    private TextureRegion[] stunFrame = new TextureRegion[14];
-    private TextureRegion[] silencedFrame = new TextureRegion[15];
     private TextureRegion[] gustFrame = new TextureRegion[15];
     private TextureRegion[] firenovaFrame = new TextureRegion[10];
     private TextureRegion[] earthquakeFrame = new TextureRegion[18];
     private TextureRegion[] tidecallingFrame = new TextureRegion[14];
+    // Normal attack
+    private Texture heroAttackSprite;
+    private Texture tigerAttackSprite;
+
+    private TextureRegion[] heroAttackFrame = new TextureRegion[12];
+    private TextureRegion[] tigerAttackFrame = new TextureRegion[7];
+    // Hero skills
+    private Texture reviveSprite;
+    private Texture tauntSprite;
+
+    private TextureRegion[] reviveFrame = new TextureRegion[15];
+    private TextureRegion[] tauntFrame = new TextureRegion[20];
+    // Monster skills
+    private Texture entangleSprite;
+    private Texture leechSprite;
+
+    private TextureRegion[] entangleFrame = new TextureRegion[18];
+    private TextureRegion[] leechFrame = new TextureRegion[8];
 
     private Vector2[] position;
     private float[] lifeTime = new float[MAX_PARTICLES];
@@ -67,6 +87,11 @@ public class ParticleSystem {
         firenovaSprite = new Texture(Gdx.files.internal("particle_Spritesheet/firenova.png"));
         earthquakeSprite = new Texture(Gdx.files.internal("particle_Spritesheet/earthquake.png"));
         tidecallingSprite = new Texture(Gdx.files.internal("particle_Spritesheet/tide_calling.png"));
+        reflectDmgSprite = new Texture(Gdx.files.internal("particle_Spritesheet/reflection.png"));
+        barrierSprite = new Texture(Gdx.files.internal("particle_Spritesheet/barrier.png"));
+        tauntSprite = new Texture(Gdx.files.internal("particle_Spritesheet/taunt.png"));
+        heroAttackSprite = new Texture(Gdx.files.internal("particle_Spritesheet/hero_attack.png"));
+        tigerAttackSprite = new Texture(Gdx.files.internal("particle_Spritesheet/tiger_attack.png"));
 
         defBuffFrame[0] = new TextureRegion(defBuffSprite,0,0,192,192);
         defBuffFrame[1] = new TextureRegion(defBuffSprite,192,0,192,192);
@@ -133,15 +158,6 @@ public class ParticleSystem {
         healFrame[7] = new TextureRegion(healSprite,384, 192,192,192);
         healFrame[8] = new TextureRegion(healSprite,576, 192,192,192);
         healFrame[9] = new TextureRegion(healSprite,768, 192,192,192);
-
-        tauntFrame[0] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_1.bmp")));
-        tauntFrame[1] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_2.bmp")));
-        tauntFrame[2] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_3.bmp")));
-        tauntFrame[3] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_4.bmp")));
-        tauntFrame[4] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_5.bmp")));
-        tauntFrame[5] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_6.bmp")));
-        tauntFrame[6] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_7.bmp")));
-        tauntFrame[7] = new TextureRegion(new Texture(Gdx.files.internal("particle_Spritesheet/taunt_8.bmp")));
 
         leechFrame[0] = new TextureRegion(leechSprite,0, 0,192,192);
         leechFrame[1] = new TextureRegion(leechSprite,192, 0,192,192);
@@ -260,6 +276,78 @@ public class ParticleSystem {
         tidecallingFrame[12] = new TextureRegion(tidecallingSprite,384, 384,192,192);
         tidecallingFrame[13] = new TextureRegion(tidecallingSprite,576, 384,192,192);
 
+        reflectDmgFrame[0] = new TextureRegion(reflectDmgSprite,0, 0,192,192);
+        reflectDmgFrame[1] = new TextureRegion(reflectDmgSprite,192, 0,192,192);
+        reflectDmgFrame[2] = new TextureRegion(reflectDmgSprite,384, 0,192,192);
+        reflectDmgFrame[3] = new TextureRegion(reflectDmgSprite,576, 0,192,192);
+        reflectDmgFrame[4] = new TextureRegion(reflectDmgSprite,768, 0,192,192);
+        reflectDmgFrame[5] = new TextureRegion(reflectDmgSprite,0, 192,192,192);
+        reflectDmgFrame[6] = new TextureRegion(reflectDmgSprite,192, 192,192,192);
+        reflectDmgFrame[7] = new TextureRegion(reflectDmgSprite,384, 192,192,192);
+        reflectDmgFrame[8] = new TextureRegion(reflectDmgSprite,576, 192,192,192);
+        reflectDmgFrame[9] = new TextureRegion(reflectDmgSprite,768, 192,192,192);
+        reflectDmgFrame[10] = new TextureRegion(reflectDmgSprite,0, 384,192,192);
+        reflectDmgFrame[11] = new TextureRegion(reflectDmgSprite,192, 384,192,192);
+
+        barrierFrame[0] = new TextureRegion(barrierSprite,0, 0,192,192);
+        barrierFrame[1] = new TextureRegion(barrierSprite,192, 0,192,192);
+        barrierFrame[2] = new TextureRegion(barrierSprite,384, 0,192,192);
+        barrierFrame[3] = new TextureRegion(barrierSprite,576, 0,192,192);
+        barrierFrame[4] = new TextureRegion(barrierSprite,768, 0,192,192);
+        barrierFrame[5] = new TextureRegion(barrierSprite,0, 192,192,192);
+        barrierFrame[6] = new TextureRegion(barrierSprite,192, 192,192,192);
+        barrierFrame[7] = new TextureRegion(barrierSprite,384, 192,192,192);
+        barrierFrame[8] = new TextureRegion(barrierSprite,576, 192,192,192);
+        barrierFrame[9] = new TextureRegion(barrierSprite,768, 192,192,192);
+        barrierFrame[10] = new TextureRegion(barrierSprite,0, 384,192,192);
+        barrierFrame[11] = new TextureRegion(barrierSprite,192, 384,192,192);
+        barrierFrame[12] = new TextureRegion(barrierSprite,384, 384,192,192);
+        barrierFrame[13] = new TextureRegion(barrierSprite,576, 384,192,192);
+        barrierFrame[14] = new TextureRegion(barrierSprite,768, 384,192,192);
+        barrierFrame[15] = new TextureRegion(barrierSprite,0, 576,192,192);
+
+        tauntFrame[0] = new TextureRegion(tauntSprite,0, 0,192,192);
+        tauntFrame[1] = new TextureRegion(tauntSprite,192, 0,192,192);
+        tauntFrame[2] = new TextureRegion(tauntSprite,384, 0,192,192);
+        tauntFrame[3] = new TextureRegion(tauntSprite,576, 0,192,192);
+        tauntFrame[4] = new TextureRegion(tauntSprite,768, 0,192,192);
+        tauntFrame[5] = new TextureRegion(tauntSprite,0, 192,192,192);
+        tauntFrame[6] = new TextureRegion(tauntSprite,192, 192,192,192);
+        tauntFrame[7] = new TextureRegion(tauntSprite,384, 192,192,192);
+        tauntFrame[8] = new TextureRegion(tauntSprite,576, 192,192,192);
+        tauntFrame[9] = new TextureRegion(tauntSprite,768, 192,192,192);
+        tauntFrame[10] = new TextureRegion(tauntSprite,0, 384,192,192);
+        tauntFrame[11] = new TextureRegion(tauntSprite,192, 384,192,192);
+        tauntFrame[12] = new TextureRegion(tauntSprite,384, 384,192,192);
+        tauntFrame[13] = new TextureRegion(tauntSprite,576, 384,192,192);
+        tauntFrame[14] = new TextureRegion(tauntSprite,768, 384,192,192);
+        tauntFrame[15] = new TextureRegion(tauntSprite,0, 576,192,192);
+        tauntFrame[16] = new TextureRegion(tauntSprite,192, 576,192,192);
+        tauntFrame[17] = new TextureRegion(tauntSprite,384, 576,192,192);
+        tauntFrame[18] = new TextureRegion(tauntSprite,576, 576,192,192);
+        tauntFrame[19] = new TextureRegion(tauntSprite,768, 576,192,192);
+
+        heroAttackFrame[0] = new TextureRegion(heroAttackSprite,0, 0,192,197);
+        heroAttackFrame[1] = new TextureRegion(heroAttackSprite,192, 0,192,197);
+        heroAttackFrame[2] = new TextureRegion(heroAttackSprite,384, 0,192,197);
+        heroAttackFrame[3] = new TextureRegion(heroAttackSprite,576, 0,192,197);
+        heroAttackFrame[4] = new TextureRegion(heroAttackSprite,768, 0,192,197);
+        heroAttackFrame[5] = new TextureRegion(heroAttackSprite,0, 197,192,197);
+        heroAttackFrame[6] = new TextureRegion(heroAttackSprite,192, 197,192,197);
+        heroAttackFrame[7] = new TextureRegion(heroAttackSprite,384, 197,192,197);
+        heroAttackFrame[8] = new TextureRegion(heroAttackSprite,576, 197,192,197);
+        heroAttackFrame[9] = new TextureRegion(heroAttackSprite,768, 197,192,197);
+        heroAttackFrame[10] = new TextureRegion(heroAttackSprite,0, 197,192,197);
+        heroAttackFrame[11] = new TextureRegion(heroAttackSprite,192, 394,192,197);
+
+        tigerAttackFrame[0] = new TextureRegion(tigerAttackSprite,0, 0,192,192);
+        tigerAttackFrame[1] = new TextureRegion(tigerAttackSprite,192, 0,192,192);
+        tigerAttackFrame[2] = new TextureRegion(tigerAttackSprite,384, 0,192,192);
+        tigerAttackFrame[3] = new TextureRegion(tigerAttackSprite,576, 0,192,192);
+        tigerAttackFrame[4] = new TextureRegion(tigerAttackSprite,768, 0,192,192);
+        tigerAttackFrame[5] = new TextureRegion(tigerAttackSprite,0, 192,192,192);
+        tigerAttackFrame[6] = new TextureRegion(tigerAttackSprite,192, 192,192,192);
+
         position = new Vector2[MAX_PARTICLES];
         type = new Type[MAX_PARTICLES];
         for(int i = 0; i < MAX_PARTICLES; i++){
@@ -354,6 +442,22 @@ public class ParticleSystem {
                 }else if(type[i] == Type.SILENCED){
                     frameLength = silencedFrame.length;
                     texture = silencedFrame;
+                }
+                else if (type[i] == Type.BARRIER) {
+                    frameLength = barrierFrame.length;
+                    texture = barrierFrame;
+                }
+                else if (type[i] == Type.REFLECTION) {
+                    frameLength = reflectDmgFrame.length;
+                    texture = reflectDmgFrame;
+                }
+                else if (type[i] == Type.HEROATTACK) {
+                    frameLength = heroAttackFrame.length;
+                    texture = heroAttackFrame;
+                }
+                else if (type[i] == Type.TIGERATTACK) {
+                    frameLength = tigerAttackFrame.length;
+                    texture = tigerAttackFrame;
                 }
 
                 int frameNo = (int) (lifeTime[i] / (PARTICLE_LIFETIME)
