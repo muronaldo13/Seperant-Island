@@ -786,7 +786,7 @@ public class DungeonA implements Screen {
                 }
             }
         }
-
+        if(checkWinningCondition()) return;
         // Monster attacking phase
         for (Monster monster : monsters) {
             if (!monster.isStun()) {
@@ -1036,6 +1036,7 @@ public class DungeonA implements Screen {
         guiSkin.dispose();
         bgm.dispose();
         dungeonA_Battle.dispose();
+        particleSystem.dispose();
     }
 
     public Skin getGuiSkin() {

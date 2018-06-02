@@ -16,7 +16,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class ParticleSystem {
     public static final int MAX_PARTICLES = 128;
-    public static final float PARTICLE_LIFETIME = 0.5f;
+    public static final float PARTICLE_LIFETIME = 0.6f;
     enum Type {NONE, DAMAGE_BUFF, HEAL, DEF_BUFF, COOLDOWN, ENTANGLE, LEECH, TAUNT, REVIVE, STUN, SILENCED, GUST, FIRENOVA, EARTHQUAKE, TIDECALLING, HEROATTACK, TIGERATTACK, BARRIER, REFLECTION}
 
     //Buff cards
