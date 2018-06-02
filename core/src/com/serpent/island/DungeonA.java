@@ -60,7 +60,6 @@ public class DungeonA implements Screen {
     private int actTrapCardCount;
     private int actDamageCardCount;
     private int actUltimateCardCount;
-    public static boolean ReflectDamage = false;
     private Dialog cardInfoDialog;
     private ParticleSystem particleSystem;
     private boolean renderAnimation = false;
@@ -819,7 +818,7 @@ public class DungeonA implements Screen {
                     }
                 }
 
-                if (!ReflectDamage) {
+                if (!monster.isReflectDamage()) {
                     // Monster attacks the selected target hero
                     decreaseHPBar(targetIndex, party.get(targetIndex).calculateDamage(monster, "Attack"), "Hero", null,0);
                     spawnParticleAtIcons(ParticleSystem.Type.TIGERATTACK,true,heroIcons.get(targetIndex));
@@ -905,6 +904,7 @@ public class DungeonA implements Screen {
             },1.3f);
             monster.setStun(false);
             monster.setTauntingSource(null);
+            monster.setReflectDamage(false);
         }
         // Reset heros
         for(int i = 0 ; i<party.size();i++){
@@ -930,7 +930,6 @@ public class DungeonA implements Screen {
             hero.setInvis(false);
             hero.getSkill().reduceCooldown(1);
         }
-        ReflectDamage = false;
         monsterDamageLabelPadding = -60;
         monsterHealingLabelPadding = -60;
         actBuffCardCount = 0;
@@ -972,7 +971,7 @@ public class DungeonA implements Screen {
     private boolean checkAllHeroesDead() {
         int deadCount = 0;
         for(Hero hero: party){
-            if(hero.getCurrentHP() <= 0)
+            if(hero.isDead())
                 deadCount++;
         }
         if(deadCount == party.size()) {

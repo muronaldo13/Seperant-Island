@@ -29,7 +29,7 @@ public class TrapCard extends Cards{
             enemy.setSilenced(true);
         }
         else if(cardName.equals(Reflecting)){
-            DungeonA.ReflectDamage = true;
+            enemy.setReflectDamage(true);
         }
         else if(cardName.equals(IgnoreDmg)){
             enemy.setStun(true);

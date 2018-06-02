@@ -16,6 +16,7 @@ public class Monster extends Creatures{
     private ArrayList<Skill> skillList;
     private boolean silenced;
     private Hero tauntingSource;
+    private boolean reflectDamage;
 
     public Monster(String name, float maxHP, float baseDamage, float baseDef, Element element) {
         super(name, maxHP, baseDamage, baseDef, element);
@@ -24,6 +25,14 @@ public class Monster extends Creatures{
 
     public void addSkill(Skill skill) {
         skillList.add(skill);
+    }
+
+    public boolean isReflectDamage() {
+        return reflectDamage;
+    }
+
+    public void setReflectDamage(boolean reflectDamage) {
+        this.reflectDamage = reflectDamage;
     }
 
     public ArrayList<Skill> getSkillList() { return skillList; }
@@ -72,7 +81,7 @@ public class Monster extends Creatures{
                     }
 
                 }
-                else if (!DungeonA.ReflectDamage) {
+                else if (!reflectDamage) {
                     if (tauntingSource != null) {
                         Hero source = dungeon.party.get(dungeon.party.indexOf(tauntingSource));
                         if (skill.getName().equals(Skill.LEECH)) {
