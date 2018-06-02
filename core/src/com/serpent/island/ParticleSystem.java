@@ -16,8 +16,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class ParticleSystem {
     public static final int MAX_PARTICLES = 128;
-    public static final float PARTICLE_LIFETIME = 0.6f;
-    enum Type {NONE, DAMAGE_BUFF, HEAL, DEF_BUFF, COOLDOWN, ENTANGLE, LEECH, TAUNT, REVIVE, STUN, SILENCED, GUST, FIRENOVA, EARTHQUAKE, TIDECALLING, HEROATTACK, TIGERATTACK, BARRIER, REFLECTION}
+    public static final float PARTICLE_LIFETIME = 0.8f;
+    enum Type {NONE, DAMAGE_BUFF, HEAL, DEF_BUFF, COOLDOWN, ENTANGLE, LEECH, TAUNT, REVIVE, INVIS,STUN, SILENCED, GUST, FIRENOVA, EARTHQUAKE, TIDECALLING, HEROATTACK, TIGERATTACK, BARRIER, REFLECTION}
 
     //Buff cards
     private Texture defBuffSprite;
@@ -45,10 +45,10 @@ public class ParticleSystem {
     private Texture earthquakeSprite;
     private Texture tidecallingSprite;
 
-    private TextureRegion[] gustFrame = new TextureRegion[15];
+    private TextureRegion[] gustFrame = new TextureRegion[27];
     private TextureRegion[] firenovaFrame = new TextureRegion[10];
-    private TextureRegion[] earthquakeFrame = new TextureRegion[18];
-    private TextureRegion[] tidecallingFrame = new TextureRegion[14];
+    private TextureRegion[] earthquakeFrame = new TextureRegion[17];
+    private TextureRegion[] tidecallingFrame = new TextureRegion[26];
     // Normal attack
     private Texture heroAttackSprite;
     private Texture tigerAttackSprite;
@@ -58,6 +58,7 @@ public class ParticleSystem {
     // Hero skills
     private Texture reviveSprite;
     private Texture tauntSprite;
+    private Texture invisSprite;
 
     private TextureRegion[] reviveFrame = new TextureRegion[15];
     private TextureRegion[] tauntFrame = new TextureRegion[20];
@@ -67,6 +68,7 @@ public class ParticleSystem {
 
     private TextureRegion[] entangleFrame = new TextureRegion[18];
     private TextureRegion[] leechFrame = new TextureRegion[8];
+    private TextureRegion[] invisFrame = new TextureRegion[12];
 
     private Vector2[] position;
     private float[] lifeTime = new float[MAX_PARTICLES];
@@ -92,6 +94,7 @@ public class ParticleSystem {
         tauntSprite = new Texture(Gdx.files.internal("particle_Spritesheet/taunt.png"));
         heroAttackSprite = new Texture(Gdx.files.internal("particle_Spritesheet/hero_attack.png"));
         tigerAttackSprite = new Texture(Gdx.files.internal("particle_Spritesheet/tiger_attack.png"));
+        invisSprite = new Texture(Gdx.files.internal("particle_Spritesheet/invis.png"));
 
         defBuffFrame[0] = new TextureRegion(defBuffSprite,0,0,192,192);
         defBuffFrame[1] = new TextureRegion(defBuffSprite,192,0,192,192);
@@ -230,6 +233,18 @@ public class ParticleSystem {
         gustFrame[12] = new TextureRegion(gustSprite,384, 384,192,192);
         gustFrame[13] = new TextureRegion(gustSprite,576, 384,192,192);
         gustFrame[14] = new TextureRegion(gustSprite,768, 384,192,192);
+        gustFrame[15] = new TextureRegion(gustSprite,0, 576,192,192);
+        gustFrame[16] = new TextureRegion(gustSprite,192, 576,192,192);
+        gustFrame[17] = new TextureRegion(gustSprite,384, 576,192,192);
+        gustFrame[18] = new TextureRegion(gustSprite,576, 576,192,192);
+        gustFrame[19] = new TextureRegion(gustSprite,768, 576,192,192);
+        gustFrame[20] = new TextureRegion(gustSprite,0, 768,192,192);
+        gustFrame[21] = new TextureRegion(gustSprite,192, 768,192,192);
+        gustFrame[22] = new TextureRegion(gustSprite,384, 768,192,192);
+        gustFrame[23] = new TextureRegion(gustSprite,576, 768,192,192);
+        gustFrame[24] = new TextureRegion(gustSprite,768, 768,192,192);
+        gustFrame[25] = new TextureRegion(gustSprite,0, 960,192,192);
+        gustFrame[26] = new TextureRegion(gustSprite,192, 960,192,192);
 
         firenovaFrame[0] = new TextureRegion(firenovaSprite,0, 0,192,192);
         firenovaFrame[1] = new TextureRegion(firenovaSprite,192, 0,192,192);
@@ -259,7 +274,6 @@ public class ParticleSystem {
         earthquakeFrame[14] = new TextureRegion(earthquakeSprite,768, 384,192,192);
         earthquakeFrame[15] = new TextureRegion(earthquakeSprite,0, 576,192,192);
         earthquakeFrame[16] = new TextureRegion(earthquakeSprite,192, 576,192,192);
-        earthquakeFrame[17] = new TextureRegion(earthquakeSprite,384, 576,192,192);
 
         tidecallingFrame[0] = new TextureRegion(tidecallingSprite,0, 0,192,192);
         tidecallingFrame[1] = new TextureRegion(tidecallingSprite,192, 0,192,192);
@@ -275,6 +289,18 @@ public class ParticleSystem {
         tidecallingFrame[11] = new TextureRegion(tidecallingSprite,192, 384,192,192);
         tidecallingFrame[12] = new TextureRegion(tidecallingSprite,384, 384,192,192);
         tidecallingFrame[13] = new TextureRegion(tidecallingSprite,576, 384,192,192);
+        tidecallingFrame[14] = new TextureRegion(tidecallingSprite,768, 384,192,192);
+        tidecallingFrame[15] = new TextureRegion(tidecallingSprite,0, 576,192,192);
+        tidecallingFrame[16] = new TextureRegion(tidecallingSprite,192, 576,192,192);
+        tidecallingFrame[17] = new TextureRegion(tidecallingSprite,384, 576,192,192);
+        tidecallingFrame[18] = new TextureRegion(tidecallingSprite,576, 576,192,192);
+        tidecallingFrame[19] = new TextureRegion(tidecallingSprite,768, 576,192,192);
+        tidecallingFrame[20] = new TextureRegion(tidecallingSprite,0, 768,192,192);
+        tidecallingFrame[21] = new TextureRegion(tidecallingSprite,192, 768,192,192);
+        tidecallingFrame[22] = new TextureRegion(tidecallingSprite,384, 768,192,192);
+        tidecallingFrame[23] = new TextureRegion(tidecallingSprite,576, 768,192,192);
+        tidecallingFrame[24] = new TextureRegion(tidecallingSprite,768, 768,192,192);
+        tidecallingFrame[25] = new TextureRegion(tidecallingSprite,0, 960,192,192);
 
         reflectDmgFrame[0] = new TextureRegion(reflectDmgSprite,0, 0,192,192);
         reflectDmgFrame[1] = new TextureRegion(reflectDmgSprite,192, 0,192,192);
@@ -348,6 +374,19 @@ public class ParticleSystem {
         tigerAttackFrame[5] = new TextureRegion(tigerAttackSprite,0, 192,192,192);
         tigerAttackFrame[6] = new TextureRegion(tigerAttackSprite,192, 192,192,192);
 
+        invisFrame[0] = new TextureRegion(invisSprite,0, 0,192,197);
+        invisFrame[1] = new TextureRegion(invisSprite,192, 0,192,197);
+        invisFrame[2] = new TextureRegion(invisSprite,384, 0,192,197);
+        invisFrame[3] = new TextureRegion(invisSprite,576, 0,192,197);
+        invisFrame[4] = new TextureRegion(invisSprite,768, 0,192,197);
+        invisFrame[5] = new TextureRegion(invisSprite,0, 197,192,197);
+        invisFrame[6] = new TextureRegion(invisSprite,192, 197,192,197);
+        invisFrame[7] = new TextureRegion(invisSprite,384, 197,192,197);
+        invisFrame[8] = new TextureRegion(invisSprite,576, 197,192,197);
+        invisFrame[9] = new TextureRegion(invisSprite,768, 197,192,197);
+        invisFrame[10] = new TextureRegion(invisSprite,0, 197,192,197);
+        invisFrame[11] = new TextureRegion(invisSprite,192, 394,192,197);
+
         position = new Vector2[MAX_PARTICLES];
         type = new Type[MAX_PARTICLES];
         for(int i = 0; i < MAX_PARTICLES; i++){
@@ -402,73 +441,85 @@ public class ParticleSystem {
                 TextureRegion[] texture = null;
                 int width = 0;
                 int height = 0;
-                if(type[i] == Type.DAMAGE_BUFF){
+                if (type[i] == Type.DAMAGE_BUFF){
                     frameLength = damageBuffFrame.length;
                     texture = damageBuffFrame;
                     width = (int) (texture[0].getRegionWidth() * 1.5);
                     height = (int) (texture[0].getRegionHeight() * 1.5);
-                } else if(type[i] == Type.DEF_BUFF){
+                }
+                else if(type[i] == Type.DEF_BUFF){
                     frameLength = defBuffFrame.length;
                     texture = defBuffFrame;
                     width = (int) (texture[0].getRegionWidth() * 1.5);
                     height = (int) (texture[0].getRegionHeight() * 1.5);
-                } else if(type[i] == Type.ENTANGLE){
+                }
+                else if(type[i] == Type.ENTANGLE){
                     frameLength = entangleFrame.length;
                     texture = entangleFrame;
-                    width = (int) (texture[0].getRegionWidth() *1.5);
-                    height = (int) (texture[0].getRegionHeight()*1.5);
-                } else if(type[i] == Type.COOLDOWN){
+                    width = texture[0].getRegionWidth() * 2;
+                    height = texture[0].getRegionHeight()* 2;
+                }
+                else if(type[i] == Type.COOLDOWN){
                     frameLength = cooldownFrame.length;
                     texture = cooldownFrame;
                     width = (int) (texture[0].getRegionWidth() * 1.5);
                     height = (int) (texture[0].getRegionHeight() * 1.5);
-                }else if(type[i] == Type.TAUNT){
+                }
+                else if(type[i] == Type.TAUNT){
                     frameLength = tauntFrame.length;
                     texture = tauntFrame;
-                    width = (int) (texture[0].getRegionWidth() * 1.5);
-                    height = (int) (texture[0].getRegionHeight() * 1.5);
-                } else if(type[i] == Type.GUST){
+                    width = (int)(texture[0].getRegionWidth() * 1.8);
+                    height = (int)(texture[0].getRegionHeight() * 1.8);
+                }
+                else if(type[i] == Type.GUST){
                     frameLength = gustFrame.length;
                     texture = gustFrame;
-                    width = texture[0].getRegionWidth() *2;
-                    height = texture[0].getRegionHeight()*2;
-                } else if(type[i] == Type.FIRENOVA){
+                    width = texture[0].getRegionWidth() *3;
+                    height = texture[0].getRegionHeight()*3;
+                }
+                else if(type[i] == Type.FIRENOVA){
                     frameLength = firenovaFrame.length;
                     texture = firenovaFrame;
-                    width = texture[0].getRegionWidth()*2;
-                    height = texture[0].getRegionHeight()*2;
-                } else if(type[i] == Type.EARTHQUAKE){
+                    width = texture[0].getRegionWidth()*3;
+                    height = texture[0].getRegionHeight()*3;
+                }
+                else if(type[i] == Type.EARTHQUAKE){
                     frameLength = earthquakeFrame.length;
                     texture = earthquakeFrame;
-                    width = texture[0].getRegionWidth()*2;
-                    height = texture[0].getRegionHeight()*2;
-                } else if(type[i] == Type.TIDECALLING){
+                    width = texture[0].getRegionWidth()*3;
+                    height = texture[0].getRegionHeight()*3;
+                }
+                else if(type[i] == Type.TIDECALLING){
                     frameLength = tidecallingFrame.length;
                     texture = tidecallingFrame;
-                    width = texture[0].getRegionWidth()*2;
-                    height = texture[0].getRegionHeight()*2;
-                } else if(type[i] == Type.HEAL){
+                    width = texture[0].getRegionWidth()*3;
+                    height = texture[0].getRegionHeight()*3;
+                }
+                else if(type[i] == Type.HEAL){
                     frameLength = healFrame.length;
                     texture = healFrame;
                     width = (int) (texture[0].getRegionWidth() * 1.5);
                     height = (int) (texture[0].getRegionHeight() * 1.5);
-                }else if(type[i] == Type.LEECH){
+                }
+                else if(type[i] == Type.LEECH){
                     frameLength = leechFrame.length;
                     texture = leechFrame;
-                    width = (int) (texture[0].getRegionWidth() * 1.5);
-                    height = (int) (texture[0].getRegionHeight() * 1.5);
-                }else if(type[i] == Type.REVIVE){
+                    width = (int) (texture[0].getRegionWidth() * 2);
+                    height = (int) (texture[0].getRegionHeight() * 2);
+                }
+                else if(type[i] == Type.REVIVE){
                     frameLength = reviveFrame.length;
                     texture = reviveFrame;
                     width = (int) (texture[0].getRegionWidth() * 1.5);
                     height = (int) (texture[0].getRegionHeight() * 1.5);
-                }else if(type[i] == Type.STUN){
+                }
+                else if(type[i] == Type.STUN){
                     frameLength = stunFrame.length;
                     texture = stunFrame;
                     width = texture[0].getRegionWidth()*2;
                     height = texture[0].getRegionHeight()*2;
-
-                }else if(type[i] == Type.SILENCED){
+                }
+                else if(type[i] == Type.SILENCED){
                     frameLength = silencedFrame.length;
                     texture = silencedFrame;
                     width = texture[0].getRegionWidth()*2;
@@ -491,11 +542,16 @@ public class ParticleSystem {
                     texture = heroAttackFrame;
                     width = texture[0].getRegionWidth()*2;
                     height = texture[0].getRegionHeight()*2;
-
                 }
                 else if (type[i] == Type.TIGERATTACK) {
                     frameLength = tigerAttackFrame.length;
                     texture = tigerAttackFrame;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
+                }
+                else if (type[i] == Type.INVIS) {
+                    frameLength = invisFrame.length;
+                    texture = invisFrame;
                     width = (int) (texture[0].getRegionWidth() * 1.5);
                     height = (int) (texture[0].getRegionHeight() * 1.5);
                 }
@@ -504,7 +560,6 @@ public class ParticleSystem {
                         * frameLength);
 
                 if(frameNo > -1 && frameNo < frameLength){
-
                     batch.begin();
                     batch.draw(texture[texture.length -frameNo-1], position[i].x, position[i].y,width,height);
                     batch.end();

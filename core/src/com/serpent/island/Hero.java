@@ -83,12 +83,12 @@ public class Hero extends Creatures {
                         }
                     }
                 }
-
                 skillEffect = "Reviving dead allies!";
             } else if (skill.getName().equals(Skill.INVIS)) {
                 dungeon.getHeroIcons().get(dungeon.party.indexOf(this)).setColor(Color.LIGHT_GRAY);
                 this.setInvis(true);
                 skillEffect = "Becoming invisible!";
+                dungeon.spawnParticleAtIcons(ParticleSystem.Type.INVIS,true, dungeon.getHeroIcons().get(dungeon.party.indexOf(this)));
             }
 
             skill.resetCooldown();

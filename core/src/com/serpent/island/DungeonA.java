@@ -414,8 +414,6 @@ public class DungeonA implements Screen {
             Vector2 location = cardIcon.localToParentCoordinates(new Vector2(cardTableB.getX(),cardTableB.getY()));
             cardIcon.addAction(Actions.sequence(Actions.moveTo(location.x+1200,-360),Actions.moveTo(location.x,-360,0.8f)));
         }
-
-
     }
 
     /**
@@ -449,10 +447,12 @@ public class DungeonA implements Screen {
 
     private void makeCardInfoDialog(final Cards card){
         cardInfoDialog = new Dialog("",guiSkin);
-        cardInfoDialog.setSize(56,88);
+        cardInfoDialog.setSize(56,150);
         Image image = new Image();
         image.setDrawable(card.getCardImage());
-        cardInfoDialog.button("Cancel", false);
+        TextButton cancelButton = new TextButton("Cancel", guiSkin, "default");
+        cancelButton.getLabel().setFontScale(3);
+        cardInfoDialog.button(cancelButton, false);
         cardInfoDialog.getContentTable().add(image);
         cardInfoDialog.show(dungeonA_Battle);
         image.addListener(new ClickListener(){
