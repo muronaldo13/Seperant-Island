@@ -501,7 +501,7 @@ public class DungeonA implements Screen {
                 content = "+" + buffAmounts.get(i) + " DEF";
                 color = Color.MAGENTA;
             } else if (type.equals("cd")){
-                content = "+" + String.valueOf(Math.round(buffAmounts.get(i))) + " CD";
+                content = "+" + String.valueOf(Math.round(buffAmounts.get(0))) + " CD";
                 color = Color.GRAY;
             }
             float positionX = heroTable.getCell(heroIcons.get(i)).getActorX() + 20;
@@ -608,7 +608,6 @@ public class DungeonA implements Screen {
                     }
                 });
                 buffCardFX.play();
-
                 effectLabel.setFontScale(3f);
                 effectLabel.setColor(229f / 255, 226f / 255, 60f / 255, 1);
                 effectLabel.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 3);
@@ -947,7 +946,6 @@ public class DungeonA implements Screen {
                             int x = (int) heroIcons.get(i).getX();
                             int index = particleSystem.spawn(type);
                             particleSystem.getPosition()[index].set(x, y);
-
                     }
                 }
             }else{

@@ -19,10 +19,6 @@ public class BuffCard extends Cards {
         this.effectMargin = effectMargin;
     }
 
-    public int getEffectMargin() {
-        return effectMargin;
-    }
-
     public String getEffect() { return effect; }
 
     public ArrayList<Float> activate(ArrayList<Hero> heroList) {
@@ -64,6 +60,7 @@ public class BuffCard extends Cards {
                     effectAmount.add((float)effectMargin);
                     hero.getSkill().reduceCooldown(effectMargin);
                     effect = "Skill cooldown reduced by " + effectMargin + " rounds";
+                    return effectAmount;
                 }
             }
         }
