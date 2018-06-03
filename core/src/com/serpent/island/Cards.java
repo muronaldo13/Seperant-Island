@@ -15,12 +15,10 @@ public abstract class Cards {
 
 
     protected String cardName;
-    private String imgPath;
     private Drawable cardImage;
 
     public Cards(String imgPath, String cardName){
         this.cardName = cardName;
-        this.imgPath = imgPath;
         cardImage = new TextureRegionDrawable(new TextureRegion(new Texture(imgPath)));
     }
 
@@ -56,7 +54,7 @@ public abstract class Cards {
             case 0:
                 return new BuffCard(BuffCard.HEAL,generateRandomStat(20,50), "card_imgs/heal.png");
             case 1:
-                return new BuffCard(BuffCard.COOLDOWN,generateRandomStat(1,3), "card_imgs/cooldown_reduce.png");
+                return new BuffCard(BuffCard.COOLDOWN,generateRandomStat(1,2), "card_imgs/cooldown_reduce.png");
             case 2:
                 return new BuffCard(BuffCard.DAMAGE,generateRandomStat(20,100), "card_imgs/damage_buff.png");
             case 3:

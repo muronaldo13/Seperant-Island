@@ -60,7 +60,6 @@ public class BuffCard extends Cards {
                     effectAmount.add((float)effectMargin);
                     hero.getSkill().reduceCooldown(effectMargin);
                     effect = "Skill cooldown reduced by " + effectMargin + " rounds";
-                    return effectAmount;
                 }
             }
         }

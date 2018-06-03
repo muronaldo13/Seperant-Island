@@ -62,7 +62,6 @@ public class DungeonA implements Screen {
     private int actUltimateCardCount;
     private Dialog cardInfoDialog;
     private ParticleSystem particleSystem;
-    private boolean renderAnimation = false;
 
     public DungeonA(Game game) {
         // variable initialisation
@@ -575,7 +574,6 @@ public class DungeonA implements Screen {
                 ArrayList<Float> buffAmounts = ((BuffCard) card).activate(party);
                 Label effectLabel = new Label(((BuffCard) card).getEffect(), guiSkin);
                 Music buffCardFX;
-                renderAnimation = true;
                 if (card.getCardName() == BuffCard.HEAL) {
                     for (int i = 0; i< party.size(); i++) {
                         if (!party.get(i).isDead()) {

@@ -16,7 +16,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class ParticleSystem {
     public static final int MAX_PARTICLES = 128;
-    public static final float PARTICLE_LIFETIME = 0.8f;
+    public static final float PARTICLE_LIFETIME = 0.7f;
     enum Type {NONE, DAMAGE_BUFF, HEAL, DEF_BUFF, COOLDOWN, ENTANGLE, LEECH, TAUNT, REVIVE, INVIS,STUN, SILENCED, GUST, FIRENOVA, EARTHQUAKE, TIDECALLING, HEROATTACK, TIGERATTACK, BARRIER, REFLECTION}
 
     //Buff cards
@@ -456,8 +456,8 @@ public class ParticleSystem {
                 else if(type[i] == Type.ENTANGLE){
                     frameLength = entangleFrame.length;
                     texture = entangleFrame;
-                    width = texture[0].getRegionWidth() * 2;
-                    height = texture[0].getRegionHeight()* 2;
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 }
                 else if(type[i] == Type.COOLDOWN){
                     frameLength = cooldownFrame.length;
@@ -504,8 +504,8 @@ public class ParticleSystem {
                 else if(type[i] == Type.LEECH){
                     frameLength = leechFrame.length;
                     texture = leechFrame;
-                    width = (int) (texture[0].getRegionWidth() * 2);
-                    height = (int) (texture[0].getRegionHeight() * 2);
+                    width = (int) (texture[0].getRegionWidth() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() * 1.5);
                 }
                 else if(type[i] == Type.REVIVE){
                     frameLength = reviveFrame.length;
@@ -553,7 +553,7 @@ public class ParticleSystem {
                     frameLength = invisFrame.length;
                     texture = invisFrame;
                     width = (int) (texture[0].getRegionWidth() * 1.5);
-                    height = (int) (texture[0].getRegionHeight() * 1.5);
+                    height = (int) (texture[0].getRegionHeight() *1.5);
                 }
 
                 int frameNo = (int) (lifeTime[i] / (PARTICLE_LIFETIME)
