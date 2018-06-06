@@ -173,7 +173,7 @@ public class DungeonA implements Screen {
             };
             // Set up dialog content area
             characterStatsLabel = new Label(party.get(characterIndex).getStats(), guiSkin);
-            characterStatsLabel.setSize(350,250);
+            characterStatsLabel.setSize(350,280);
             // Skill activation button will only show when skill is activatable
             if (party.get(characterIndex).getSkill().getCurrentCooldown() == 0
                     && !party.get(characterIndex).isDead() && !party.get(characterIndex).isStun()) {
